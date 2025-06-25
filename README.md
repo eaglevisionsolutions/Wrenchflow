@@ -68,10 +68,6 @@ Hey there! WrenchFlow is this super cool web app made to help small engine repai
 
     * Plus, a tough system that makes sure only the right people (shop admins, parts folks, service crew, or platform admins) can see and do what they're supposed to, keeping everyone's data separate and safe. Phew!
 
-### Let's Get Rolling!
-
-(Once the app's actually built, GitHub Copilot will fill in all the steps to get it up and running. Stay tuned!)
-
 ### How to Use It:
 
 WrenchFlow's really user-friendly for all your repair shop tasks:
