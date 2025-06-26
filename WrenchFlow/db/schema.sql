@@ -101,3 +101,11 @@ CREATE TABLE sale_line_items (
     FOREIGN KEY (sale_id) REFERENCES sales(id),
     FOREIGN KEY (part_id) REFERENCES parts(id)
 );
+CREATE TABLE themes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    theme_name VARCHAR(255) NOT NULL,
+    theme_config JSON NOT NULL
+);
+
+ALTER TABLE shop_users ADD COLUMN selected_theme_id INT DEFAULT NULL;
+ALTER TABLE shop_users ADD FOREIGN KEY (selected_theme_id) REFERENCES themes(id);
