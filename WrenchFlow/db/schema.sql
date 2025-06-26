@@ -62,3 +62,15 @@ CREATE TABLE work_order_services (
     FOREIGN KEY (shop_id) REFERENCES shops(id),
     FOREIGN KEY (work_order_id) REFERENCES work_orders(id)
 );
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    equipment_id INT NOT NULL,
+    appointment_date DATE NOT NULL,
+    appointment_time TIME NOT NULL,
+    status ENUM('scheduled', 'completed', 'cancelled') NOT NULL,
+    FOREIGN KEY (shop_id) REFERENCES shops(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (equipment_id) REFERENCES equipment(id)
+);
