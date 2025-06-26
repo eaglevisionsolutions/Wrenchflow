@@ -82,3 +82,22 @@ CREATE TABLE users (
     role ENUM('Shop Administrator', 'Parts Employee', 'Service Employee', 'Super Admin', 'Platform Employee') NOT NULL,
     FOREIGN KEY (shop_id) REFERENCES shops(id)
 );
+CREATE TABLE sales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    customer_id INT DEFAULT NULL,
+    sale_date DATE NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (shop_id) REFERENCES shops(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE sale_line_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
+    part_id INT NOT NULL,
+    quantity_sold INT NOT NULL,
+    sale_price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (sale_id) REFERENCES sales(id),
+    FOREIGN KEY (part_id) REFERENCES parts(id)
+);
