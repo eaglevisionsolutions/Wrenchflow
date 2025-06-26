@@ -19,3 +19,13 @@ CREATE TABLE shop_users (
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id),
     FOREIGN KEY (user_id) REFERENCES platform_users(user_id)
 );
+CREATE TABLE part_vendor_relations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    part_id INT NOT NULL,
+    vendor_id INT NOT NULL,
+    FOREIGN KEY (shop_id) REFERENCES shops(id),
+    FOREIGN KEY (part_id) REFERENCES parts(id),
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id),
+    UNIQUE (shop_id, part_id, vendor_id)
+);
