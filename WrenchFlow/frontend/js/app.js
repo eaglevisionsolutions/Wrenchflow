@@ -1,1 +1,2 @@
-// This file is intentionally left blank.
+// Placeholder for main JavaScript logic
+console.log('Main JavaScript loaded.');
