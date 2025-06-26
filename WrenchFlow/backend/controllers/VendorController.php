@@ -1,12 +1,18 @@
 <?php
-
-require_once __DIR__ . '/../models/Vendor.php';
+require_once __DIR__ . '/../session.php'; // Include session management
+require_once __DIR__ . '/../Auth.php';
+require_once __DIR__ . '/../AccessControl.php';
 
 class VendorController {
-    private $vendorModel;
+    private $auth;
+    private $accessControl;
 
     public function __construct($db) {
-        $this->vendorModel = new Vendor($db);
+        $this->auth = new Auth($db);
+        $this->accessControl = new AccessControl($this->auth);
+
+        // Protect endpoint for Parts Employees and Shop Administrators
+        $this->accessControl->checkAccess(['Parts Employee', 'Shop Administrator']);
     }
 
     public function handleRequest($method, $shop_id, $data) {
@@ -49,6 +55,9 @@ class VendorController {
     }
 
     private function createVendor($shop_id, $data) {
+        // Enforce shop-level access
+        $this->accessControl->enforceShopScope($shop_id);
+
         if ($this->vendorModel->createVendor(
             $shop_id,
             $data['vendor_name'],

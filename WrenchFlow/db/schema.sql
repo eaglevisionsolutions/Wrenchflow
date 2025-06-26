@@ -74,3 +74,11 @@ CREATE TABLE appointments (
     FOREIGN KEY (customer_id) REFERENCES customers(id),
     FOREIGN KEY (equipment_id) REFERENCES equipment(id)
 );
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('Shop Administrator', 'Parts Employee', 'Service Employee', 'Super Admin', 'Platform Employee') NOT NULL,
+    FOREIGN KEY (shop_id) REFERENCES shops(id)
+);

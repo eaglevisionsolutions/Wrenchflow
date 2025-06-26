@@ -3,16 +3,26 @@
 require_once __DIR__ . '/../models/PartsOrder.php';
 require_once __DIR__ . '/../models/PartsOrderLineItem.php';
 require_once __DIR__ . '/../models/PartsOrderReceipt.php';
+require_once __DIR__ . '/../session.php'; // Include session management
+require_once __DIR__ . '/../Auth.php';
+require_once __DIR__ . '/../AccessControl.php';
 
 class PartsOrderController {
     private $partsOrderModel;
     private $lineItemModel;
     private $receiptModel;
+    private $auth;
+    private $accessControl;
 
     public function __construct($db) {
         $this->partsOrderModel = new PartsOrder($db);
         $this->lineItemModel = new PartsOrderLineItem($db);
         $this->receiptModel = new PartsOrderReceipt($db);
+        $this->auth = new Auth($db);
+        $this->accessControl = new AccessControl($this->auth);
+
+        // Protect endpoint for Parts Employees and Shop Administrators
+        $this->accessControl->checkAccess(['Parts Employee', 'Shop Administrator']);
     }
 
     public function handleRequest($method, $shop_id, $data) {
@@ -30,6 +40,9 @@ class PartsOrderController {
     }
 
     private function createPartsOrder($shop_id, $data) {
+        // Enforce shop-level access
+        $this->accessControl->enforceShopScope($shop_id);
+
         $order_id = $this->partsOrderModel->createPartsOrder(
             $shop_id,
             $data['vendor_id'],
@@ -73,5 +86,13 @@ class PartsOrderController {
     private function updateInventory($shop_id, $part_id, $quantity_received, $actual_cost_per_unit) {
         // Logic to update part inventory or create a new part if necessary
         // This would involve checking if the part exists and updating its quantity and cost
+    }
+
+    public function getPartsOrdersByShop($shopId) {
+        // Enforce shop-level access
+        $this->accessControl->enforceShopScope($shopId);
+
+        // Existing functionality for fetching parts orders by shop
+        // ...
     }
 }

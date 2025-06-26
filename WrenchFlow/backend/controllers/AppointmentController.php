@@ -1,15 +1,28 @@
 <?php
 
+require_once __DIR__ . '/../session.php'; // Include session management
+require_once __DIR__ . '/../Auth.php';
+require_once __DIR__ . '/../AccessControl.php';
 require_once __DIR__ . '/../models/Appointment.php';
 
 class AppointmentController {
     private $appointmentModel;
+    private $auth;
+    private $accessControl;
 
     public function __construct($db) {
         $this->appointmentModel = new Appointment($db);
+        $this->auth = new Auth($db);
+        $this->accessControl = new AccessControl($this->auth);
+
+        // Protect endpoint for Service Employees and Shop Administrators
+        $this->accessControl->checkAccess(['Service Employee', 'Shop Administrator']);
     }
 
     public function handleRequest($method, $shop_id, $data) {
+        // Enforce shop-level access
+        $this->accessControl->enforceShopScope($shop_id);
+
         switch ($method) {
             case 'GET':
                 if (isset($data['id'])) {
