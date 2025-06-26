@@ -19,7 +19,9 @@ class WorkOrderService {
     }
 
     public function getServicesByWorkOrder($shop_id, $work_order_id) {
-        $query = "SELECT * FROM work_order_services WHERE shop_id = :shop_id AND work_order_id = :work_order_id";
+        $query = "SELECT service_name, service_cost 
+                  FROM work_order_services 
+                  WHERE shop_id = :shop_id AND work_order_id = :work_order_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':shop_id', $shop_id);
         $stmt->bindParam(':work_order_id', $work_order_id);

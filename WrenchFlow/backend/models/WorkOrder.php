@@ -45,4 +45,14 @@ class WorkOrder {
         $stmt->bindParam(':status', $status);
         return $stmt->execute();
     }
+
+    public function getCompletedWorkOrdersByEquipment($shop_id, $equipment_id) {
+        $query = "SELECT * FROM work_orders 
+                  WHERE shop_id = :shop_id AND vehicle_id = :equipment_id AND status = 'completed'";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindParam(':equipment_id', $equipment_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
