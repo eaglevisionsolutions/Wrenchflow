@@ -8,11 +8,17 @@ class Theme {
     }
 
     public function createTheme($theme_name, $theme_config) {
-        $query = "INSERT INTO themes (theme_name, theme_config) VALUES (:theme_name, :theme_config)";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':theme_name', $theme_name);
-        $stmt->bindParam(':theme_config', $theme_config);
-        return $stmt->execute();
+        try {
+            $query = "INSERT INTO themes (theme_name, theme_config) VALUES (:theme_name, :theme_config)";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':theme_name', $theme_name);
+            $stmt->bindParam(':theme_config', $theme_config);
+            $stmt->execute();
+            return true;
+        } catch (PDOException $e) {
+            error_log("Error creating theme: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function updateTheme($theme_id, $theme_name, $theme_config) {

@@ -1,33 +1,27 @@
 // IndexedDB service for WrenchFlow application
-const DB_NAME = 'WrenchFlowDB';
-const DB_VERSION = 1;
+const dbName = 'WrenchFlowDB';
+const dbVersion = 1;
+let db;
 
 function openDatabase() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const request = indexedDB.open(dbName, dbVersion);
 
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
-
-            // Create object store for customers
-            if (!db.objectStoreNames.contains('customers')) {
-                const customerStore = db.createObjectStore('customers', { keyPath: 'id', autoIncrement: true });
-                customerStore.createIndex('shop_id', 'shop_id', { unique: false });
-            }
-
-            // Create object store for equipment
-            if (!db.objectStoreNames.contains('equipment')) {
-                const equipmentStore = db.createObjectStore('equipment', { keyPath: 'id', autoIncrement: true });
-                equipmentStore.createIndex('shop_id', 'shop_id', { unique: false });
-            }
+            db.createObjectStore('customers', { keyPath: 'id' });
+            db.createObjectStore('equipment', { keyPath: 'id' });
+            db.createObjectStore('parts', { keyPath: 'id' });
+            db.createObjectStore('workOrders', { keyPath: 'id' });
         };
 
         request.onsuccess = (event) => {
-            resolve(event.target.result);
+            db = event.target.result;
+            resolve(db);
         };
 
         request.onerror = (event) => {
-            reject(`Database error: ${event.target.errorCode}`);
+            reject(event.target.error);
         };
     });
 }

@@ -115,6 +115,29 @@ async function syncPendingOperations() {
     }
 }
 
+// Sync pending changes with the backend
+async function syncPendingChanges() {
+    const pendingChanges = await getPendingOperations();
+    if (pendingChanges.length === 0) return;
+
+    try {
+        const response = await fetch('/api/sync/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ changes: pendingChanges }),
+        });
+
+        if (response.ok) {
+            console.log('Synchronization successful');
+            // Mark changes as synced in IndexedDB
+        } else {
+            console.error('Synchronization failed');
+        }
+    } catch (error) {
+        console.error('Error during synchronization:', error);
+    }
+}
+
 // Queue a CRUD operation
 async function queueOperation(module, action, data) {
     const operation = {

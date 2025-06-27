@@ -90,6 +90,36 @@ function updateTotalAmount() {
     document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
 }
 
+// Add CSRF token to all requests
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+// Example: Updated recordSale function with error handling and loading spinner
+async function recordSale(saleData) {
+    try {
+        showLoadingSpinner();
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify(saleData),
+        });
+
+        if (response.ok) {
+            showToast('Sale recorded successfully!', 'success');
+        } else {
+            console.error('Failed to record sale:', await response.json());
+            showToast('Failed to record sale. Please try again.', 'danger');
+        }
+    } catch (error) {
+        console.error('Error recording sale:', error);
+        showToast('An error occurred while recording the sale.', 'danger');
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
 // Handle OTC sales form submission
 document.getElementById('otcSalesForm').addEventListener('submit', async (event) => {
     event.preventDefault();

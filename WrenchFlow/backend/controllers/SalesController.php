@@ -47,26 +47,33 @@ class SalesController {
     }
 
     private function recordSale($shop_id, $data) {
-        $sale_id = $this->saleModel->createSale(
-            $shop_id,
-            $data['customer_id'] ?? null,
-            $data['sale_date'],
-            $data['total_amount']
-        );
-
-        foreach ($data['line_items'] as $item) {
-            $this->saleLineItemModel->addLineItem(
-                $sale_id,
-                $item['part_id'],
-                $item['quantity_sold'],
-                $item['sale_price']
+        validateCsrfToken(); // Validate CSRF token
+        try {
+            $sale_id = $this->saleModel->createSale(
+                $shop_id,
+                $data['customer_id'] ?? null,
+                $data['sale_date'],
+                $data['total_amount']
             );
 
-            // Decrement inventory for the sold part
-            $this->partModel->decrementInventory($shop_id, $item['part_id'], $item['quantity_sold']);
-        }
+            foreach ($data['line_items'] as $item) {
+                $this->saleLineItemModel->addLineItem(
+                    $sale_id,
+                    $item['part_id'],
+                    $item['quantity_sold'],
+                    $item['sale_price']
+                );
 
-        echo json_encode(['message' => 'Sale recorded successfully', 'sale_id' => $sale_id]);
+                // Decrement inventory for the sold part
+                $this->partModel->decrementInventory($shop_id, $item['part_id'], $item['quantity_sold']);
+            }
+
+            echo json_encode(['message' => 'Sale recorded successfully', 'sale_id' => $sale_id]);
+        } catch (Exception $e) {
+            error_log("Error recording sale: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to record sale', 'details' => $e->getMessage()]);
+        }
     }
 
     private function getSales($shop_id, $data) {

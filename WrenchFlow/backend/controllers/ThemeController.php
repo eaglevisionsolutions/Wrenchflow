@@ -43,12 +43,18 @@ class ThemeController {
         }
     }
 
-    private function createTheme($data) {
-        if ($this->themeModel->createTheme($data['theme_name'], json_encode($data['theme_config']))) {
-            echo json_encode(['message' => 'Theme created successfully']);
-        } else {
+    public function createTheme($data) {
+        validateCsrfToken(); // Validate CSRF token
+        try {
+            if ($this->themeModel->createTheme($data['theme_name'], json_encode($data['theme_config']))) {
+                echo json_encode(['message' => 'Theme created successfully']);
+            } else {
+                throw new Exception('Failed to create theme');
+            }
+        } catch (Exception $e) {
+            error_log("Error creating theme: " . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['error' => 'Failed to create theme']);
+            echo json_encode(['error' => 'Failed to create theme', 'details' => $e->getMessage()]);
         }
     }
 

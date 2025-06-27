@@ -14,3 +14,28 @@ if (navigator.onLine) {
 } else {
     console.log('App is currently offline.');
 }
+
+// Add this to a global JavaScript file
+document.getElementById('logoutButton').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        if (response.ok) {
+            localStorage.removeItem('userRole'); // Clear user role
+            window.location.href = 'login.html'; // Redirect to login
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
+});
+// Add this to a global JavaScript file
+document.getElementById('logoutButton').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        if (response.ok) {
+            localStorage.removeItem('userRole'); // Clear user role
+            window.location.href = 'login.html'; // Redirect to login
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
+});

@@ -108,4 +108,7 @@ CREATE TABLE themes (
 );
 
 ALTER TABLE shop_users ADD COLUMN selected_theme_id INT DEFAULT NULL;
-ALTER TABLE shop_users ADD FOREIGN KEY (selected_theme_id) REFERENCES themes(id);
+ALTER TABLE shop_users ADD CONSTRAINT fk_selected_theme FOREIGN KEY (selected_theme_id) REFERENCES themes(id) ON DELETE SET NULL;
+
+CREATE INDEX idx_shop_id ON themes (shop_id);
+CREATE INDEX idx_sale_date ON sales (sale_date);

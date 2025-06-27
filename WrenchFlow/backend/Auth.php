@@ -1,5 +1,4 @@
 <?php
-
 class Auth {
     private $db;
 
@@ -8,24 +7,29 @@ class Auth {
     }
 
     public function login($email, $password) {
-        $query = "SELECT id, shop_id, role, password_hash FROM users WHERE email = :email";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $query = "SELECT id, shop_id, role, password_hash FROM users WHERE email = :email";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user['password_hash'])) {
-            // Start a secure session
-            session_start();
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['shop_id'] = $user['shop_id'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['logged_in'] = true;
+            if ($user && password_verify($password, $user['password_hash'])) {
+                session_start();
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['shop_id'] = $user['shop_id'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['logged_in'] = true;
 
-            return ['message' => 'Login successful', 'role' => $user['role']];
-        } else {
-            http_response_code(401);
-            return ['error' => 'Invalid email or password'];
+                return ['message' => 'Login successful', 'role' => $user['role']];
+            } else {
+                http_response_code(401);
+                return ['error' => 'Invalid email or password'];
+            }
+        } catch (PDOException $e) {
+            error_log("Error during login: " . $e->getMessage());
+            http_response_code(500);
+            return ['error' => 'Internal server error'];
         }
     }
 

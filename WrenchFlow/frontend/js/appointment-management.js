@@ -130,6 +130,9 @@ async function populateTechnicians() {
     }
 }
 
+// Add CSRF token to all requests
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // Handle appointment form submission
 document.getElementById('appointmentForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -148,7 +151,10 @@ document.getElementById('appointmentForm').addEventListener('submit', async (eve
     try {
         const response = await fetch(appointmentId ? `${API_BASE_URL}/${appointmentId}` : API_BASE_URL, {
             method: appointmentId ? 'PUT' : 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
             body: JSON.stringify(appointmentData),
         });
 
@@ -165,6 +171,33 @@ document.getElementById('appointmentForm').addEventListener('submit', async (eve
         console.error('Error saving appointment:', error);
     }
 });
+
+// Example: Updated createAppointment function with error handling and loading spinner
+async function createAppointment(appointmentData) {
+    try {
+        showLoadingSpinner();
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify(appointmentData),
+        });
+
+        if (response.ok) {
+            showToast('Appointment created successfully!', 'success');
+        } else {
+            console.error('Failed to create appointment:', await response.json());
+            showToast('Failed to create appointment. Please try again.', 'danger');
+        }
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        showToast('An error occurred while creating the appointment.', 'danger');
+    } finally {
+        hideLoadingSpinner();
+    }
+}
 
 // Edit an appointment
 async function editAppointment(appointmentId) {
