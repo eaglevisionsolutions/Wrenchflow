@@ -26,11 +26,15 @@ document.getElementById('loginForm')?.addEventListener('submit', async (event) =
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const csrfToken = document.getElementById('csrf_token')?.value;
 
     try {
         const response = await fetch(LOGIN_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
             body: JSON.stringify({ email, password }),
         });
 
@@ -40,8 +44,14 @@ document.getElementById('loginForm')?.addEventListener('submit', async (event) =
             localStorage.setItem('userRole', data.role); // Store user role for frontend access control
             window.location.href = 'index.html'; // Redirect to the main page
         } else {
-            const error = await response.json();
-            document.getElementById('errorMessage').textContent = error.error;
+            let errorMsg = 'Login failed.';
+            try {
+                const error = await response.json();
+                errorMsg = error.error || errorMsg;
+            } catch {
+                errorMsg = 'Server error. Please try again later.';
+            }
+            document.getElementById('errorMessage').textContent = errorMsg;
             document.getElementById('errorMessage').style.display = 'block';
         }
     } catch (error) {
