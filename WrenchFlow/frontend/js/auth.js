@@ -80,3 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Automatically check authentication on every page load
 checkAuthentication();
+
+async function fetchAndStoreCsrfToken() {
+    if (navigator.onLine) {
+        try {
+            const response = await fetch('/api/csrf-token');
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('csrfToken', data.csrf_token);
+            }
+        } catch (e) {
+            console.error('Failed to fetch CSRF token:', e);
+        }
+    }
+}
+
+// Call this on app load
+fetchAndStoreCsrfToken();

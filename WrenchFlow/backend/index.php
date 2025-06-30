@@ -13,14 +13,18 @@ function validateCsrfToken() {
     }
 }
 
-// Apply CSRF validation to all state-changing requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT' || $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+// Get the request URI
+$request = $_SERVER['REQUEST_URI'];
+
+// Only apply CSRF validation to state-changing requests, EXCEPT /api/csrf-token
+if (
+    ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT' || $_SERVER['REQUEST_METHOD'] === 'DELETE')
+    && $request !== '/api/csrf-token'
+) {
     validateCsrfToken();
 }
 
 // Simple API router
-$request = $_SERVER['REQUEST_URI'];
-
 switch ($request) {
     case '/api/health':
         echo json_encode(['status' => 'ok']);
@@ -39,6 +43,13 @@ switch ($request) {
             echo json_encode(['error' => 'Method Not Allowed']);
         }
         break;
+    case '/api/csrf-token':
+        session_start();
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        echo json_encode(['csrf_token' => $_SESSION['csrf_token']]);
+        break;
     // Add more routes here
     default:
         http_response_code(404);
@@ -46,6 +57,7 @@ switch ($request) {
         break;
 }
 
+// These routes are outside the switch for legacy reasons; you may want to move them into the switch for consistency.
 if ($request === '/api/logout' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     session_start();
     session_unset();
