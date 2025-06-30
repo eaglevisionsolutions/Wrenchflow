@@ -50,16 +50,20 @@ document.getElementById('loginForm')?.addEventListener('submit', async (event) =
     }
 });
 
-// Handle logout
-document.getElementById('logoutButton')?.addEventListener('click', async () => {
-    try {
-        const response = await fetch(LOGOUT_API_URL, { method: 'POST' });
-        if (response.ok) {
-            localStorage.removeItem('userRole'); // Clear user role
-            window.location.href = 'login.html'; // Redirect to login
-        }
-    } catch (error) {
-        console.error('Error during logout:', error);
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logoutButton');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                if (response.ok) {
+                    localStorage.removeItem('userRole'); // Clear user role
+                    window.location.href = 'login.html'; // Redirect to login
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        });
     }
 });
 
