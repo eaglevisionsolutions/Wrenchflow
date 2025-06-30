@@ -803,18 +803,52 @@ async function initializeApp() {
         await openDatabase();
         console.log('Database initialized.');
 
-        // Fetch initial data
-        fetchVendors();
+        // Always fetch themes if you want theme switching everywhere
         fetchThemes();
-        fetchWorkOrders();
-        fetchAppointments();
-        fetchCustomers();
-        fetchEquipment();
-        fetchSales();
-        fetchServiceHistory();
-        fetchParts();
-        fetchPartsOrders();
+
+        // Always try to sync pending operations when online
         syncPendingOperations();
+
+        // Page-specific data loading
+        const path = window.location.pathname;
+
+        if (path.endsWith('vendor-management.html')) {
+            fetchVendors();
+        }
+        if (path.endsWith('work-order-management.html')) {
+            fetchWorkOrders();
+        }
+        if (path.endsWith('appointment-management.html')) {
+            fetchAppointments();
+            fetchCustomers();    // for dropdowns
+            fetchEquipment();    // for dropdowns
+        }
+        if (path.endsWith('appointment-booking.html')) {
+            fetchAppointments();
+            fetchCustomers();
+            fetchEquipment();
+        }
+        if (path.endsWith('customer-management.html')) {
+            fetchCustomers();
+        }
+        if (path.endsWith('equipment-management.html')) {
+            fetchEquipment();
+        }
+        if (path.endsWith('sales-management.html')) {
+            fetchSales();
+        }
+        if (path.endsWith('service-history.html')) {
+            fetchServiceHistory();
+        }
+        if (path.endsWith('parts-ordering.html')) {
+            fetchParts();
+            fetchPartsOrders();
+        }
+        if (path.endsWith('parts-management.html')) {
+            fetchParts();
+        }
+        // Add more as needed for other pages
+
     } catch (error) {
         console.error('Error initializing app:', error);
     }
