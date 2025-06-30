@@ -1,6 +1,115 @@
 console.log('App.js loaded.');
 
 // ===========================
+// CSRF Token Management
+// ===========================
+async function fetchAndStoreCsrfToken() {
+    if (navigator.onLine) {
+        try {
+            const response = await fetch('/api/csrf-token', { credentials: 'same-origin' });
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('csrfToken', data.csrf_token);
+            }
+        } catch (e) {
+            console.error('Failed to fetch CSRF token:', e);
+        }
+    }
+}
+fetchAndStoreCsrfToken();
+
+// Helper to get CSRF token
+function getCsrfToken() {
+    return localStorage.getItem('csrfToken');
+}
+
+// Helper for CSRF-protected fetch
+async function csrfFetch(url, options = {}) {
+    const method = options.method ? options.method.toUpperCase() : 'GET';
+    const needsCsrf = ['POST', 'PUT', 'DELETE'].includes(method);
+    const headers = options.headers || {};
+
+    if (needsCsrf) {
+        headers['X-CSRF-TOKEN'] = getCsrfToken();
+    }
+    // Always send credentials for session
+    return fetch(url, {
+        ...options,
+        headers,
+        credentials: 'same-origin',
+    });
+}
+
+// ===========================
+// UI Feedback Helpers
+// ===========================
+function showLoadingSpinner() {
+    let spinner = document.getElementById('loadingSpinner');
+    if (!spinner) {
+        spinner = document.createElement('div');
+        spinner.id = 'loadingSpinner';
+        spinner.style.position = 'fixed';
+        spinner.style.top = '0';
+        spinner.style.left = '0';
+        spinner.style.width = '100vw';
+        spinner.style.height = '100vh';
+        spinner.style.background = 'rgba(255,255,255,0.7)';
+        spinner.style.display = 'flex';
+        spinner.style.alignItems = 'center';
+        spinner.style.justifyContent = 'center';
+        spinner.style.zIndex = '9999';
+        spinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        document.body.appendChild(spinner);
+    }
+    spinner.style.display = 'flex';
+}
+
+function hideLoadingSpinner() {
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'none';
+}
+
+function showToast(message, type = 'info') {
+    let toast = document.getElementById('appToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '10000';
+        toast.style.minWidth = '200px';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '6px';
+        toast.style.color = '#fff';
+        toast.style.fontWeight = 'bold';
+        document.body.appendChild(toast);
+    }
+    toast.style.background = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff';
+    toast.textContent = message;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+}
+
+// ===========================
+// Modal Helpers (if you use modals)
+// ===========================
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'block';
+    }
+}
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+    }
+}
+
+// ===========================
 // IndexedDB Service
 // ===========================
 const dbName = 'WrenchFlowDB';
@@ -81,7 +190,7 @@ async function syncPendingOperations() {
 
         console.log(`Syncing ${pendingOperations.length} pending operations...`);
 
-        const response = await fetch(SYNC_API_URL, {
+        const response = await csrfFetch(SYNC_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ shop_id: shopId, operations: pendingOperations }),
@@ -160,8 +269,7 @@ async function fetchVendors() {
 
 function populateVendorTable(vendors) {
     const tableBody = document.getElementById('vendorTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     vendors.forEach(vendor => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -176,6 +284,16 @@ function populateVendorTable(vendors) {
         `;
         tableBody.appendChild(row);
     });
+}
+
+// Example: Add vendor (POST)
+async function addVendor(vendorData) {
+    const response = await csrfFetch(VENDOR_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(vendorData),
+    });
+    // ...handle response...
 }
 
 // ===========================
@@ -195,8 +313,7 @@ async function fetchWorkOrders() {
 
 function populateWorkOrderTable(workOrders) {
     const tableBody = document.getElementById('workOrderTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     workOrders.forEach(order => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -211,6 +328,16 @@ function populateWorkOrderTable(workOrders) {
         `;
         tableBody.appendChild(row);
     });
+}
+
+// Example: Add work order (POST)
+async function addWorkOrder(orderData) {
+    const response = await csrfFetch(WORK_ORDER_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+    });
+    // ...handle response...
 }
 
 // ===========================
@@ -230,8 +357,7 @@ async function fetchAppointments() {
 
 function populateAppointmentTable(appointments) {
     const tableBody = document.getElementById('appointmentTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     appointments.forEach(appointment => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -248,6 +374,16 @@ function populateAppointmentTable(appointments) {
     });
 }
 
+// Example: Add appointment (POST)
+async function addAppointment(appointmentData) {
+    const response = await csrfFetch(APPOINTMENT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appointmentData),
+    });
+    // ...handle response...
+}
+
 // ===========================
 // Customer Management
 // ===========================
@@ -255,18 +391,21 @@ const CUSTOMER_API_URL = '/api/customers';
 
 async function fetchCustomers() {
     try {
+        showLoadingSpinner();
         const response = await fetch(`${CUSTOMER_API_URL}?shop_id=${shopId}`);
         const customers = await response.json();
         populateCustomerTable(customers);
+        hideLoadingSpinner();
     } catch (error) {
+        hideLoadingSpinner();
+        showToast('Error fetching customers', 'error');
         console.error('Error fetching customers:', error);
     }
 }
 
 function populateCustomerTable(customers) {
     const tableBody = document.getElementById('customerTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     customers.forEach(customer => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -275,13 +414,88 @@ function populateCustomerTable(customers) {
             <td>${customer.email || ''}</td>
             <td>${customer.address || ''}</td>
             <td>
-                <button class="btn btn-sm btn-warning" onclick="editCustomer(${customer.id})">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${customer.id})">Delete</button>
+                <button class="btn btn-sm btn-warning btn-edit-customer" data-id="${customer.id}">Edit</button>
+                <button class="btn btn-sm btn-danger btn-delete-customer" data-id="${customer.id}">Delete</button>
             </td>
         `;
         tableBody.appendChild(row);
     });
 }
+
+// Add customer (POST)
+async function addCustomer(customerData) {
+    try {
+        showLoadingSpinner();
+        const response = await csrfFetch(CUSTOMER_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customerData),
+        });
+        hideLoadingSpinner();
+        if (response.ok) {
+            showToast('Customer added', 'success');
+            fetchCustomers();
+        } else {
+            showToast('Failed to add customer', 'error');
+        }
+    } catch (error) {
+        hideLoadingSpinner();
+        showToast('Error adding customer', 'error');
+    }
+}
+
+async function updateCustomer(id, customerData) {
+    try {
+        showLoadingSpinner();
+        const response = await csrfFetch(`${CUSTOMER_API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customerData),
+        });
+        hideLoadingSpinner();
+        if (response.ok) {
+            showToast('Customer updated', 'success');
+            fetchCustomers();
+        } else {
+            showToast('Failed to update customer', 'error');
+        }
+    } catch (error) {
+        hideLoadingSpinner();
+        showToast('Error updating customer', 'error');
+    }
+}
+
+async function deleteCustomer(id) {
+    if (!confirm('Are you sure you want to delete this customer?')) return;
+    try {
+        showLoadingSpinner();
+        const response = await csrfFetch(`${CUSTOMER_API_URL}/${id}`, {
+            method: 'DELETE'
+        });
+        hideLoadingSpinner();
+        if (response.ok) {
+            showToast('Customer deleted', 'success');
+            fetchCustomers();
+        } else {
+            showToast('Failed to delete customer', 'error');
+        }
+    } catch (error) {
+        hideLoadingSpinner();
+        showToast('Error deleting customer', 'error');
+    }
+}
+
+document.getElementById('customerTableBody')?.addEventListener('click', function(event) {
+    if (event.target.matches('.btn-edit-customer')) {
+        const id = event.target.dataset.id;
+        // openModal('editCustomerModal'); // implement as needed
+        // load customer data into modal for editing
+    }
+    if (event.target.matches('.btn-delete-customer')) {
+        const id = event.target.dataset.id;
+        deleteCustomer(id);
+    }
+});
 
 // ===========================
 // Equipment Management
@@ -300,8 +514,7 @@ async function fetchEquipment() {
 
 function populateEquipmentTable(equipment) {
     const tableBody = document.getElementById('equipmentTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     equipment.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -316,6 +529,16 @@ function populateEquipmentTable(equipment) {
         `;
         tableBody.appendChild(row);
     });
+}
+
+// Example: Add equipment (POST)
+async function addEquipment(equipmentData) {
+    const response = await csrfFetch(EQUIPMENT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(equipmentData),
+    });
+    // ...handle response...
 }
 
 // ===========================
@@ -335,8 +558,7 @@ async function fetchSales() {
 
 function populateSalesTable(sales) {
     const tableBody = document.getElementById('salesTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     sales.forEach(sale => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -352,6 +574,15 @@ function populateSalesTable(sales) {
     });
 }
 
+async function recordSale(saleData) {
+    const response = await csrfFetch(SALES_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saleData),
+    });
+    // ...handle response...
+}
+
 // ===========================
 // Service History
 // ===========================
@@ -363,14 +594,14 @@ async function fetchServiceHistory() {
         const history = await response.json();
         populateServiceHistoryTable(history);
     } catch (error) {
-        console.error('Error fetching service history:', error);
+        hideLoadingSpinner();
+        showToast('Error updating customer', 'error');
     }
 }
 
 function populateServiceHistoryTable(history) {
     const tableBody = document.getElementById('serviceHistoryTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     history.forEach(record => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -395,14 +626,14 @@ async function fetchParts() {
         const parts = await response.json();
         populatePartsTable(parts);
     } catch (error) {
-        console.error('Error fetching parts:', error);
+        hideLoadingSpinner();
+        showToast('Error fetching parts', 'error');
     }
 }
 
 function populatePartsTable(parts) {
     const tableBody = document.getElementById('partsTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     parts.forEach(part => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -417,6 +648,16 @@ function populatePartsTable(parts) {
         `;
         tableBody.appendChild(row);
     });
+}
+
+// Example: Add part (POST)
+async function addPart(partData) {
+    const response = await csrfFetch(PARTS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(partData),
+    });
+    // ...handle response...
 }
 
 // ===========================
@@ -436,8 +677,7 @@ async function fetchPartsOrders() {
 
 function populatePartsOrderTable(orders) {
     const tableBody = document.getElementById('partsOrderTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     orders.forEach(order => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -453,6 +693,108 @@ function populatePartsOrderTable(orders) {
     });
 }
 
+// Example: Add parts order (POST)
+async function addPartsOrder(orderData) {
+    const response = await csrfFetch(PARTS_ORDER_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+    });
+    // ...handle response...
+}
+
+// ===========================
+// Authentication
+// ===========================
+const LOGIN_API_URL = '/api/login';
+const LOGOUT_API_URL = '/api/logout';
+
+function checkAuthentication() {
+    const userRole = localStorage.getItem('userRole');
+    const isLoginPage = window.location.pathname.endsWith('login.html');
+    if (!userRole && !isLoginPage) {
+        window.location.href = 'login.html';
+    }
+}
+
+function restrictAccess(allowedRoles) {
+    const userRole = localStorage.getItem('userRole');
+    if (!allowedRoles.includes(userRole)) {
+        alert('You do not have permission to access this page.');
+        window.location.href = 'index.html';
+    }
+}
+
+// Handle login form submission
+document.getElementById('loginForm')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const csrfToken = localStorage.getItem('csrfToken');
+
+    try {
+        showLoadingSpinner();
+        const response = await fetch(LOGIN_API_URL, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({ email, password }),
+        });
+        hideLoadingSpinner();
+
+        if (response.ok) {
+            const data = await response.json();
+            showToast('Login successful!', 'success');
+            localStorage.setItem('userRole', data.role);
+            window.location.href = 'index.html';
+        } else {
+            let errorMsg = 'Login failed.';
+            try {
+                const error = await response.json();
+                errorMsg = error.error || errorMsg;
+            } catch {
+                errorMsg = 'Server error. Please try again later.';
+            }
+            showToast(errorMsg, 'error');
+            document.getElementById('errorMessage').textContent = errorMsg;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+    } catch (error) {
+        hideLoadingSpinner();
+        showToast('An error occurred. Please try again.', 'error');
+        document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
+        document.getElementById('errorMessage').style.display = 'block';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logoutButton');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(LOGOUT_API_URL, { method: 'POST', credentials: 'same-origin' });
+                hideLoadingSpinner();
+                if (response.ok) {
+                    localStorage.removeItem('userRole');
+                    showToast('Logged out', 'success');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showToast('Error during logout', 'error');
+            }
+        });
+    }
+});
+
+// Automatically check authentication on every page load
+checkAuthentication();
+
 // ===========================
 // Initialize App
 // ===========================
@@ -466,6 +808,12 @@ async function initializeApp() {
         fetchThemes();
         fetchWorkOrders();
         fetchAppointments();
+        fetchCustomers();
+        fetchEquipment();
+        fetchSales();
+        fetchServiceHistory();
+        fetchParts();
+        fetchPartsOrders();
         syncPendingOperations();
     } catch (error) {
         console.error('Error initializing app:', error);
