@@ -4,8 +4,9 @@ const LOGOUT_API_URL = '/api/logout';
 // Check if the user is logged in
 function checkAuthentication() {
     const userRole = localStorage.getItem('userRole');
-    if (!userRole) {
-        // Redirect to login page if not logged in
+    const isLoginPage = window.location.pathname.endsWith('login.html');
+    if (!userRole && !isLoginPage) {
+        // Redirect to login page if not logged in and not already on login page
         window.location.href = 'login.html';
     }
 }
