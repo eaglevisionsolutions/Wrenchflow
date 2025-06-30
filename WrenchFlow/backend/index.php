@@ -45,9 +45,12 @@ switch ($request) {
         break;
     case '/api/csrf-token':
         session_start();
+        error_log("Session ID: " . session_id());
+        error_log("CSRF Token: " . ($_SESSION['csrf_token'] ?? 'NOT SET'));
         if (!isset($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
+        header('Content-Type: application/json');
         echo json_encode(['csrf_token' => $_SESSION['csrf_token']]);
         break;
     // Add more routes here
