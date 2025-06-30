@@ -25,6 +25,20 @@ switch ($request) {
     case '/api/health':
         echo json_encode(['status' => 'ok']);
         break;
+    case '/api/login':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Parse JSON input
+            $data = json_decode(file_get_contents('php://input'), true);
+            $email = $data['email'] ?? '';
+            $password = $data['password'] ?? '';
+            // Call your authentication logic (example: Auth::login)
+            $result = Auth::login($email, $password, $db); // You may need to adjust this call
+            echo json_encode($result);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
     // Add more routes here
     default:
         http_response_code(404);
