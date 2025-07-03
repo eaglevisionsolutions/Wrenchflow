@@ -17,11 +17,12 @@ class ThemeController extends BaseController {
     // POST /themes
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO themes (theme_id, theme_name, config_json) VALUES (?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO themes (theme_name, config_json) VALUES (?, ?)');
         $stmt->execute([
-            $data['theme_id'], $data['theme_name'], $data['config_json']
+            $data['theme_name'], $data['config_json']
         ]);
-        $this->jsonResponse(['success' => true, 'theme_id' => $data['theme_id']], 201);
+        $theme_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'theme_id' => $theme_id], 201);
     }
     // GET /themes/{id}
     public function getById($id) {

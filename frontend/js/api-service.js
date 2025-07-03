@@ -23,14 +23,15 @@ async function getWorkOrders(shop_id) {
 async function createWorkOrder(data) {
   // Save work order, then save parts/services if present
   const wo = await apiRequest('work_orders', 'POST', data);
+  const work_order_id = wo.work_order_id;
   if (data.parts && data.parts.length) {
     for (const part of data.parts) {
-      await apiRequest('work_order_parts', 'POST', { ...part, work_order_id: data.work_order_id, shop_id: data.shop_id });
+      await apiRequest('work_order_parts', 'POST', { ...part, work_order_id, shop_id: data.shop_id });
     }
   }
   if (data.services && data.services.length) {
     for (const svc of data.services) {
-      await apiRequest('work_order_services', 'POST', { ...svc, work_order_id: data.work_order_id, shop_id: data.shop_id });
+      await apiRequest('work_order_services', 'POST', { ...svc, work_order_id, shop_id: data.shop_id });
     }
   }
   return wo;

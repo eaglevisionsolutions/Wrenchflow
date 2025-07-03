@@ -18,12 +18,13 @@ class CustomerController extends BaseController {
     // POST /customers
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO customers (customer_id, shop_id, first_name, last_name, phone_number, email, address) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO customers (shop_id, first_name, last_name, phone_number, email, address) VALUES (?, ?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['customer_id'], $data['shop_id'], $data['first_name'], $data['last_name'],
+            $data['shop_id'], $data['first_name'], $data['last_name'],
             $data['phone_number'], $data['email'], $data['address']
         ]);
-        $this->jsonResponse(['success' => true, 'customer_id' => $data['customer_id']], 201);
+        $customer_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'customer_id' => $customer_id], 201);
     }
     // GET /customers/{id}
     public function getById($id, $shop_id) {

@@ -193,7 +193,7 @@
     form.onsubmit = async e => {
       e.preventDefault();
       const data = {
-        work_order_id: editingId || crypto.randomUUID(),
+        ...(editingId ? { work_order_id: editingId } : {}), // Only send work_order_id if editing
         shop_id,
         equipment_id: form.equipment_id.value,
         customer_id: equipmentList.find(eq => eq.equipment_id === form.equipment_id.value)?.customer_id,

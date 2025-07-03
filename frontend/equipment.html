@@ -115,7 +115,7 @@
     form.onsubmit = e => {
       e.preventDefault();
       const data = {
-        equipment_id: crypto.randomUUID(),
+        // equipment_id will be assigned by backend
         shop_id,
         customer_id, // In real app, select from dropdown
         unit_type: form.unit_type.value,

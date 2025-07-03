@@ -18,12 +18,13 @@ class AppointmentController extends BaseController {
     // POST /appointments
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO appointments (appointment_id, shop_id, customer_id, equipment_id, appointment_date, appointment_time, service_type, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO appointments (shop_id, customer_id, equipment_id, appointment_date, appointment_time, service_type, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['appointment_id'], $data['shop_id'], $data['customer_id'], $data['equipment_id'],
+            $data['shop_id'], $data['customer_id'], $data['equipment_id'],
             $data['appointment_date'], $data['appointment_time'], $data['service_type'], $data['notes'], $data['status']
         ]);
-        $this->jsonResponse(['success' => true, 'appointment_id' => $data['appointment_id']], 201);
+        $appointment_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'appointment_id' => $appointment_id], 201);
     }
     // GET /appointments/{id}
     public function getById($id, $shop_id) {

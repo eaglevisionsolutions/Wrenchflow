@@ -17,11 +17,12 @@ class WorkOrderServiceController extends BaseController {
     }
     // POST /work_order_services
     public function create($data) {
-        $stmt = $this->db->prepare('INSERT INTO work_order_services (work_order_service_id, work_order_id, service_description, hours_spent, labour_rate_at_time) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO work_order_services (work_order_id, service_description, hours_spent, labour_rate_at_time) VALUES (?, ?, ?, ?)');
         $stmt->execute([
-            $data['work_order_service_id'], $data['work_order_id'], $data['service_description'], $data['hours_spent'], $data['labour_rate_at_time']
+            $data['work_order_id'], $data['service_description'], $data['hours_spent'], $data['labour_rate_at_time']
         ]);
-        $this->jsonResponse(['success' => true, 'work_order_service_id' => $data['work_order_service_id']], 201);
+        $work_order_service_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'work_order_service_id' => $work_order_service_id], 201);
     }
     // PUT /work_order_services/{id}
     public function update($data) {

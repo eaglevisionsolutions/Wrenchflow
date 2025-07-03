@@ -150,7 +150,7 @@
     form.onsubmit = e => {
       e.preventDefault();
       const data = {
-        shop_user_id: editingId || crypto.randomUUID(),
+        ...(editingId ? { shop_user_id: editingId } : {}), // Only send shop_user_id if editing
         shop_id,
         first_name: form.first_name.value,
         last_name: form.last_name.value,

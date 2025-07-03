@@ -18,11 +18,12 @@ class PartsOrderController extends BaseController {
     // POST /parts_orders
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO parts_orders (order_id, shop_id, order_date, expected_delivery_date, vendor_id, order_status) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO parts_orders (shop_id, order_date, expected_delivery_date, vendor_id, order_status) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['order_id'], $data['shop_id'], $data['order_date'], $data['expected_delivery_date'], $data['vendor_id'], $data['order_status']
+            $data['shop_id'], $data['order_date'], $data['expected_delivery_date'], $data['vendor_id'], $data['order_status']
         ]);
-        $this->jsonResponse(['success' => true, 'order_id' => $data['order_id']], 201);
+        $order_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'order_id' => $order_id], 201);
     }
     // GET /parts_orders/{id}
     public function getById($id, $shop_id) {

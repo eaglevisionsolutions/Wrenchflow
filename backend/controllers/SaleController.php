@@ -18,11 +18,12 @@ class SaleController extends BaseController {
     // POST /sales
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO sales (sale_id, shop_id, customer_id, sale_date, total_sale_amount, total_cost_of_goods_sold) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO sales (shop_id, customer_id, sale_date, total_sale_amount, total_cost_of_goods_sold) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['sale_id'], $data['shop_id'], $data['customer_id'], $data['sale_date'], $data['total_sale_amount'], $data['total_cost_of_goods_sold']
+            $data['shop_id'], $data['customer_id'], $data['sale_date'], $data['total_sale_amount'], $data['total_cost_of_goods_sold']
         ]);
-        $this->jsonResponse(['success' => true, 'sale_id' => $data['sale_id']], 201);
+        $sale_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'sale_id' => $sale_id], 201);
     }
     // GET /sales/{id}
     public function getById($id, $shop_id) {

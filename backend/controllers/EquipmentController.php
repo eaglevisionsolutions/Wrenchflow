@@ -18,12 +18,13 @@ class EquipmentController extends BaseController {
     // POST /equipment
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO equipment (equipment_id, shop_id, customer_id, unit_type, make, model_number, serial_number, purchase_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO equipment (shop_id, customer_id, unit_type, make, model_number, serial_number, purchase_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['equipment_id'], $data['shop_id'], $data['customer_id'], $data['unit_type'],
+            $data['shop_id'], $data['customer_id'], $data['unit_type'],
             $data['make'], $data['model_number'], $data['serial_number'], $data['purchase_date'], $data['notes']
         ]);
-        $this->jsonResponse(['success' => true, 'equipment_id' => $data['equipment_id']], 201);
+        $equipment_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'equipment_id' => $equipment_id], 201);
     }
     // GET /equipment/{id}
     public function getById($id, $shop_id) {

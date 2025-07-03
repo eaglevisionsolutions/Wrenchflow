@@ -18,13 +18,14 @@ class PartController extends BaseController {
     // POST /parts
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO parts (part_id, shop_id, part_name, part_number, description, cost_price, sale_price, quantity_on_hand, minimum_stock_level, bin_location, is_bulk, bulk_unit_measure, bulk_total_cost_delivery, bulk_total_volume_delivered, bulk_markup_percentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO parts (shop_id, part_name, part_number, description, cost_price, sale_price, quantity_on_hand, minimum_stock_level, bin_location, is_bulk, bulk_unit_measure, bulk_total_cost_delivery, bulk_total_volume_delivered, bulk_markup_percentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['part_id'], $data['shop_id'], $data['part_name'], $data['part_number'], $data['description'],
+            $data['shop_id'], $data['part_name'], $data['part_number'], $data['description'],
             $data['cost_price'], $data['sale_price'], $data['quantity_on_hand'], $data['minimum_stock_level'], $data['bin_location'],
             $data['is_bulk'], $data['bulk_unit_measure'], $data['bulk_total_cost_delivery'], $data['bulk_total_volume_delivered'], $data['bulk_markup_percentage']
         ]);
-        $this->jsonResponse(['success' => true, 'part_id' => $data['part_id']], 201);
+        $part_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'part_id' => $part_id], 201);
     }
     // GET /parts/{id}
     public function getById($id, $shop_id) {

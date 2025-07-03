@@ -17,11 +17,12 @@ class WorkOrderPartController extends BaseController {
     }
     // POST /work_order_parts
     public function create($data) {
-        $stmt = $this->db->prepare('INSERT INTO work_order_parts (work_order_part_id, work_order_id, part_id, quantity_used, is_bulk, volume_used, sale_price) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO work_order_parts (work_order_id, part_id, quantity_used, is_bulk, volume_used, sale_price) VALUES (?, ?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['work_order_part_id'], $data['work_order_id'], $data['part_id'], $data['quantity_used'], $data['is_bulk'], $data['volume_used'], $data['sale_price']
+            $data['work_order_id'], $data['part_id'], $data['quantity_used'], $data['is_bulk'], $data['volume_used'], $data['sale_price']
         ]);
-        $this->jsonResponse(['success' => true, 'work_order_part_id' => $data['work_order_part_id']], 201);
+        $work_order_part_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'work_order_part_id' => $work_order_part_id], 201);
     }
     // PUT /work_order_parts/{id}
     public function update($data) {

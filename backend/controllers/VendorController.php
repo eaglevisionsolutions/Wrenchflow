@@ -18,12 +18,13 @@ class VendorController extends BaseController {
     // POST /vendors
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO vendors (vendor_id, shop_id, vendor_name, contact_person, phone_number, email, address, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO vendors (shop_id, vendor_name, contact_person, phone_number, email, address, notes) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
-            $data['vendor_id'], $data['shop_id'], $data['vendor_name'], $data['contact_person'],
+            $data['shop_id'], $data['vendor_name'], $data['contact_person'],
             $data['phone_number'], $data['email'], $data['address'], $data['notes']
         ]);
-        $this->jsonResponse(['success' => true, 'vendor_id' => $data['vendor_id']], 201);
+        $vendor_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'vendor_id' => $vendor_id], 201);
     }
     // GET /vendors/{id}
     public function getById($id, $shop_id) {

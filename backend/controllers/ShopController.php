@@ -17,11 +17,12 @@ class ShopController extends BaseController {
     // POST /shops
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO shops (shop_id, shop_name, subscription_status, billing_email) VALUES (?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO shops (shop_name, subscription_status, billing_email) VALUES (?, ?, ?)');
         $stmt->execute([
-            $data['shop_id'], $data['shop_name'], $data['subscription_status'], $data['billing_email']
+            $data['shop_name'], $data['subscription_status'], $data['billing_email']
         ]);
-        $this->jsonResponse(['success' => true, 'shop_id' => $data['shop_id']], 201);
+        $shop_id = $this->db->lastInsertId();
+        $this->jsonResponse(['success' => true, 'shop_id' => $shop_id], 201);
     }
     // ...add update, delete, getById methods...
 }

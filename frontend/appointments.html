@@ -136,7 +136,7 @@
     form.onsubmit = e => {
       e.preventDefault();
       const data = {
-        appointment_id: editingId || crypto.randomUUID(),
+        ...(editingId ? { appointment_id: editingId } : {}), // Only send appointment_id if editing
         shop_id,
         customer_id, // In real app, select from dropdown
         appointment_date: form.appointment_date.value,
