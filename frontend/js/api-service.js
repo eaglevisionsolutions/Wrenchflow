@@ -1,3 +1,10 @@
+// Work Order Parts/Services fetchers for detailed print/export
+export async function getWorkOrderParts(work_order_id, shop_id) {
+  return apiRequest('work_order_parts', 'GET', null, { work_order_id, shop_id });
+}
+export async function getWorkOrderServices(work_order_id, shop_id) {
+  return apiRequest('work_order_services', 'GET', null, { work_order_id, shop_id });
+}
 // Themes
 export async function getThemes() {
   return apiRequest('themes', 'GET');
@@ -112,6 +119,10 @@ async function apiRequest(resource, method = 'GET', data = null, params = {}) {
   return res.json();
 }
 
+// Sale Line Items
+export async function getSaleLineItems(sale_id) {
+  return apiRequest('sale_line_items', 'GET', null, { sale_id });
+}
 // Example resource-specific helpers
 export async function getCustomers(shop_id) {
   return apiRequest('customers', 'GET', null, { shop_id });
@@ -190,5 +201,6 @@ window.WrenchFlowAPI = {
   createVendor,
   updateVendor,
   deleteVendor,
+  getSaleLineItems,
   // ...add other resource helpers here
 };

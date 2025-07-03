@@ -33,9 +33,16 @@
         <label for="profile-lastname" class="form-label">Last Name</label>
         <input type="text" class="form-control" id="profile-lastname">
       </div>
-      <div class="mb-2">
-        <label for="profile-theme" class="form-label">Theme</label>
-        <select class="form-control" id="profile-theme"></select>
+      <div class="mb-2 d-flex align-items-end gap-2">
+        <div style="flex:1;">
+          <label for="profile-theme" class="form-label">Theme</label>
+          <select class="form-control" id="profile-theme"></select>
+        </div>
+        <button type="button" class="btn btn-outline-secondary mb-1" id="preview-theme-btn">Preview Theme</button>
+      </div>
+      <div class="mb-2 d-flex align-items-center gap-2">
+        <label class="form-label mb-0" for="dark-mode-toggle">Dark Mode</label>
+        <input type="checkbox" id="dark-mode-toggle" style="width:1.5em;height:1.5em;">
       </div>
       <div class="mb-2">
         <label for="profile-password" class="form-label">Change Password</label>
@@ -83,6 +90,48 @@
         }
       }
     }
+    // --- Theme Preview Logic ---
+    function applyTheme(themeId) {
+      const themeLink = document.getElementById('wf-theme-css');
+      if (themeLink) themeLink.remove();
+      if (!themeId) return;
+      WrenchFlowAPI.getThemes().then(themes => {
+        const selectedTheme = themes.find(t => t.theme_id === themeId);
+        if (selectedTheme && selectedTheme.config_json) {
+          const config = JSON.parse(selectedTheme.config_json);
+          if (config.css_url) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.id = 'wf-theme-css';
+            link.href = config.css_url;
+            document.head.appendChild(link);
+          }
+        }
+      });
+    }
+
+    document.getElementById('preview-theme-btn').onclick = function() {
+      const themeId = document.getElementById('profile-theme').value;
+      applyTheme(themeId);
+    };
+
+    // --- Dark Mode Logic ---
+    function setDarkMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('wf_dark_mode', '1');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.removeItem('wf_dark_mode');
+      }
+    }
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    darkModeToggle.checked = localStorage.getItem('wf_dark_mode') === '1';
+    setDarkMode(darkModeToggle.checked);
+    darkModeToggle.onchange = function() {
+      setDarkMode(this.checked);
+    };
+
     loadProfile();
     document.getElementById('profile-form').onsubmit = async function(e) {
       e.preventDefault();
