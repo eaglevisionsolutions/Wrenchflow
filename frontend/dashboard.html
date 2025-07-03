@@ -82,10 +82,10 @@
   <script src="js/ui-components.js"></script>
   <script src="js/sync-manager.js"></script>
   <script>
-    import { renderStatusBar } from './js/ui-components.js';
-    window.isOnline = isOnline;
+    // Use global functions from loaded scripts, no import
+    if (window.renderStatusBar) window.renderStatusBar();
+    window.isOnline = window.isOnline || function() { return navigator.onLine; };
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
-    renderStatusBar();
     // --- Global Dark Mode Toggle ---
     function setDarkMode(enabled) {
       if (enabled) {

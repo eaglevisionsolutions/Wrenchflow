@@ -88,10 +88,10 @@
   <script src="js/sync-manager.js"></script>
   <script src="js/export-utils.js"></script>
   <script>
-    import { renderStatusBar } from './js/ui-components.js';
-    window.isOnline = isOnline;
+    // Use global functions from loaded scripts, no import
+    if (window.renderStatusBar) window.renderStatusBar();
+    window.isOnline = window.isOnline || function() { return navigator.onLine; };
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
-    renderStatusBar();
     // --- Global Dark Mode Toggle ---
     function setDarkMode(enabled) {
       if (enabled) {
@@ -112,7 +112,8 @@
         setDarkMode(!document.body.classList.contains('dark-mode'));
       };
     }
-    const shop_id = '11111111-1111-1111-1111-111111111111';
+    // Use shop_id from logged-in user
+    const shop_id = user && user.shop_id ? user.shop_id : '';
     const tableDiv = document.getElementById('workorder-table');
     const form = document.getElementById('workorder-form');
     const addBtn = document.getElementById('add-workorder-btn');

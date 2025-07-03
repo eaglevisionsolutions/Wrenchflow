@@ -55,7 +55,6 @@
   <script src="js/ui-components.js"></script>
   <script src="js/sync-manager.js"></script>
   <script>
-    import { renderStatusBar } from './js/ui-components.js';
     window.isOnline = isOnline;
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
     renderStatusBar();
