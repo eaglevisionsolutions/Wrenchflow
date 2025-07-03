@@ -20,6 +20,7 @@ $controllers = [
     'employees' => 'EmployeeController',
     'shops' => 'ShopController',
     'shop_settings' => 'ShopSettingController',
+    'auth' => 'AuthController', // Add auth controller
 ];
 
 foreach ($controllers as $key => $class) {
@@ -40,7 +41,7 @@ if ($segments[0] !== 'api' || !$resource || !isset($controllers[$resource])) {
 $controller = new $controllers[$resource]();
 
 // Auth check (except login route)
-if (!($resource === 'auth' && $method === 'POST')) {
+if (!(($resource === 'auth' && $method === 'POST') || ($resource === 'auth' && $method === 'logout'))) {
     Auth::check();
 }
 
