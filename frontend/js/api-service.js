@@ -1,3 +1,14 @@
+// Themes
+export async function getThemes() {
+  return apiRequest('themes', 'GET');
+}
+export async function getThemeById(theme_id) {
+  return apiRequest('themes', 'GET', null, { id: theme_id });
+}
+export async function setUserTheme(shop_user_id, theme_id) {
+  // This would POST or PUT to a user endpoint; placeholder for now
+  return Promise.resolve();
+}
 // Work Orders
 export async function getWorkOrders(shop_id) {
   return apiRequest('work_orders', 'GET', null, { shop_id });
@@ -166,6 +177,9 @@ window.WrenchFlowAPI = {
   deleteCustomer,
   getEquipment,
   createEquipment,
+  getThemes,
+  getThemeById,
+  setUserTheme,
   updateEquipment,
   deleteEquipment,
   getParts,
