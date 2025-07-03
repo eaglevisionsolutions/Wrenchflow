@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    // If already logged in, redirect to dashboard
+    const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
+    if (user && user.shop_id) {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - WrenchFlow</title>
