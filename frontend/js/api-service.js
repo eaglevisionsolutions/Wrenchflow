@@ -123,36 +123,36 @@ export async function apiRequest(resource, method = 'GET', data = null, params =
 }
 
 // Sale Line Items
-async function getSaleLineItems(sale_id) {
+export async function getSaleLineItems(sale_id) {
   return apiRequest('sale_line_items', 'GET', null, { sale_id });
 }
 // Example resource-specific helpers
-async function getCustomers(shop_id) {
+export async function getCustomers(shop_id) {
   return apiRequest('customers', 'GET', null, { shop_id });
 }
-async function getCustomerById(customer_id, shop_id) {
+export async function getCustomerById(customer_id, shop_id) {
   return apiRequest('customers', 'GET', null, { id: customer_id, shop_id });
 }
-async function createCustomer(data) {
+export async function createCustomer(data) {
   return apiRequest('customers', 'POST', data);
 }
-async function updateCustomer(data) {
+export async function updateCustomer(data) {
   return apiRequest('customers', 'PUT', data);
 }
-async function deleteCustomer(customer_id, shop_id) {
+export async function deleteCustomer(customer_id, shop_id) {
   return apiRequest('customers', 'DELETE', null, { id: customer_id, shop_id });
 }
 // Equipment
-async function getEquipment(shop_id) {
+export async function getEquipment(shop_id) {
   return apiRequest('equipment', 'GET', null, { shop_id });
 }
-async function createEquipment(data) {
+export async function createEquipment(data) {
   return apiRequest('equipment', 'POST', data);
 }
-async function updateEquipment(data) {
+export async function updateEquipment(data) {
   return apiRequest('equipment', 'PUT', data);
 }
-async function deleteEquipment(equipment_id, shop_id) {
+export async function deleteEquipment(equipment_id, shop_id) {
   return apiRequest('equipment', 'DELETE', null, { id: equipment_id, shop_id });
 }
 // Parts
@@ -169,16 +169,16 @@ export async function deletePart(part_id, shop_id) {
   return apiRequest('parts', 'DELETE', null, { id: part_id, shop_id });
 }
 // Vendors
-async function getVendors(shop_id) {
+export async function getVendors(shop_id) {
   return apiRequest('vendors', 'GET', null, { shop_id });
 }
-async function createVendor(data) {
+export async function createVendor(data) {
   return apiRequest('vendors', 'POST', data);
 }
-async function updateVendor(data) {
+export async function updateVendor(data) {
   return apiRequest('vendors', 'PUT', data);
 }
-async function deleteVendor(vendor_id, shop_id) {
+export async function deleteVendor(vendor_id, shop_id) {
   return apiRequest('vendors', 'DELETE', null, { id: vendor_id, shop_id });
 }
 
