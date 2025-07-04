@@ -87,7 +87,7 @@ async function deleteAppointment(appointment_id, shop_id) {
 // Generic API service for WrenchFlow
 const API_BASE = '/api/';
 
-async function apiRequest(resource, method = 'GET', data = null, params = {}) {
+export async function apiRequest(resource, method = 'GET', data = null, params = {}) {
   let url = API_BASE + resource;
   if (method === 'GET' && Object.keys(params).length) {
     url += '?' + new URLSearchParams(params).toString();
