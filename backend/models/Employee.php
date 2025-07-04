@@ -16,7 +16,7 @@ class Employee {
     // Find user by email (for login)
     public static function findByEmail($email) {
         $db = get_db();
-        $stmt = $db->prepare('SELECT * FROM employees WHERE email = ? LIMIT 1');
+        $stmt = $db->prepare('SELECT * FROM shop_users WHERE email = ? LIMIT 1');
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
