@@ -181,42 +181,4 @@ async function deleteVendor(vendor_id, shop_id) {
   return apiRequest('vendors', 'DELETE', null, { id: vendor_id, shop_id });
 }
 
-window.WrenchFlowAPI = {
-  apiRequest,
-  getWorkOrderParts,
-  getWorkOrderServices,
-  getThemes,
-  getThemeById,
-  setUserTheme,
-  getWorkOrders,
-  createWorkOrder,
-  updateWorkOrder,
-  deleteWorkOrder,
-  getEmployees,
-  createEmployee,
-  updateEmployee,
-  deleteEmployee,
-  getAppointments,
-  createAppointment,
-  updateAppointment,
-  deleteAppointment,
-  getSaleLineItems,
-  getCustomers,
-  getCustomerById,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
-  getEquipment,
-  createEquipment,
-  updateEquipment,
-  deleteEquipment,
-  getParts,
-  createPart,
-  updatePart,
-  deletePart,
-  getVendors,
-  createVendor,
-  updateVendor,
-  deleteVendor
-  // ...add other resource helpers here
-};
+
