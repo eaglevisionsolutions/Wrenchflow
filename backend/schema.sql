@@ -1,14 +1,21 @@
 -- WrenchFlow MySQL Schema
 -- Shops
-CREATE TABLE shops (
+CREATE TABLE IF NOT EXISTS shops (
     shop_id CHAR(36) PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
     subscription_status ENUM('active','inactive','trial') NOT NULL DEFAULT 'trial',
     billing_email VARCHAR(255) NOT NULL
 );
+-- Themes
+CREATE TABLE IF NOT EXISTS themes (
+    theme_id CHAR(36) PRIMARY KEY,
+    theme_name VARCHAR(50) NOT NULL,
+    config_json JSON NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Platform Users
-CREATE TABLE platform_users (
+CREATE TABLE IF NOT EXISTS platform_users (
     platform_user_id CHAR(36) PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -18,7 +25,7 @@ CREATE TABLE platform_users (
 );
 
 -- Shop Users
-CREATE TABLE shop_users (
+CREATE TABLE IF NOT EXISTS shop_users (
     shop_user_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     username VARCHAR(50) NOT NULL,
@@ -34,7 +41,7 @@ CREATE TABLE shop_users (
 );
 
 -- Customers
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
     customer_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
@@ -47,7 +54,7 @@ CREATE TABLE customers (
 );
 
 -- Equipment
-CREATE TABLE equipment (
+CREATE TABLE IF NOT EXISTS equipment (
     equipment_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     customer_id CHAR(36) NOT NULL,
@@ -64,7 +71,7 @@ CREATE TABLE equipment (
 );
 
 -- Parts
-CREATE TABLE parts (
+CREATE TABLE IF NOT EXISTS parts (
     part_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     part_name VARCHAR(100) NOT NULL,
@@ -86,7 +93,7 @@ CREATE TABLE parts (
 );
 
 -- Vendors
-CREATE TABLE vendors (
+CREATE TABLE IF NOT EXISTS vendors (
     vendor_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     vendor_name VARCHAR(100) NOT NULL,
@@ -101,7 +108,7 @@ CREATE TABLE vendors (
 );
 
 -- Part-Vendor Relations (Many-to-Many)
-CREATE TABLE part_vendor_relations (
+CREATE TABLE IF NOT EXISTS part_vendor_relations (
     part_id CHAR(36) NOT NULL,
     vendor_id CHAR(36) NOT NULL,
     PRIMARY KEY (part_id, vendor_id),
@@ -110,7 +117,7 @@ CREATE TABLE part_vendor_relations (
 );
 
 -- Parts Orders
-CREATE TABLE parts_orders (
+CREATE TABLE IF NOT EXISTS parts_orders (
     order_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -122,7 +129,7 @@ CREATE TABLE parts_orders (
 );
 
 -- Parts Order Line Items
-CREATE TABLE parts_order_line_items (
+CREATE TABLE IF NOT EXISTS parts_order_line_items (
     line_item_id CHAR(36) PRIMARY KEY,
     order_id CHAR(36) NOT NULL,
     part_id CHAR(36),
@@ -134,7 +141,7 @@ CREATE TABLE parts_order_line_items (
 );
 
 -- Parts Order Receipts
-CREATE TABLE parts_order_receipts (
+CREATE TABLE IF NOT EXISTS parts_order_receipts (
     receipt_id CHAR(36) PRIMARY KEY,
     order_id CHAR(36) NOT NULL,
     line_item_id CHAR(36) NOT NULL,
@@ -148,7 +155,7 @@ CREATE TABLE parts_order_receipts (
 );
 
 -- Work Orders
-CREATE TABLE work_orders (
+CREATE TABLE IF NOT EXISTS work_orders (
     work_order_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     equipment_id CHAR(36) NOT NULL,
@@ -166,7 +173,7 @@ CREATE TABLE work_orders (
 );
 
 -- Work Order Parts
-CREATE TABLE work_order_parts (
+CREATE TABLE IF NOT EXISTS work_order_parts (
     work_order_part_id CHAR(36) PRIMARY KEY,
     work_order_id CHAR(36) NOT NULL,
     part_id CHAR(36) NOT NULL,
@@ -179,7 +186,7 @@ CREATE TABLE work_order_parts (
 );
 
 -- Work Order Services
-CREATE TABLE work_order_services (
+CREATE TABLE IF NOT EXISTS work_order_services (
     work_order_service_id CHAR(36) PRIMARY KEY,
     work_order_id CHAR(36) NOT NULL,
     service_description TEXT NOT NULL,
@@ -190,7 +197,7 @@ CREATE TABLE work_order_services (
 
 -- Employees (Shop Users Table is used for employees)
 -- Appointments
-CREATE TABLE appointments (
+CREATE TABLE IF NOT EXISTS appointments (
     appointment_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     customer_id CHAR(36) NOT NULL,
@@ -207,7 +214,7 @@ CREATE TABLE appointments (
 );
 
 -- Sales (Over-the-Counter)
-CREATE TABLE sales (
+CREATE TABLE IF NOT EXISTS sales (
     sale_id CHAR(36) PRIMARY KEY,
     shop_id CHAR(36) NOT NULL,
     customer_id CHAR(36),
@@ -219,7 +226,7 @@ CREATE TABLE sales (
 );
 
 -- Sale Line Items
-CREATE TABLE sale_line_items (
+CREATE TABLE IF NOT EXISTS sale_line_items (
     sale_line_item_id CHAR(36) PRIMARY KEY,
     sale_id CHAR(36) NOT NULL,
     part_id CHAR(36) NOT NULL,
@@ -231,16 +238,8 @@ CREATE TABLE sale_line_items (
     FOREIGN KEY (part_id) REFERENCES parts(part_id)
 );
 
--- Themes
-CREATE TABLE themes (
-    theme_id CHAR(36) PRIMARY KEY,
-    theme_name VARCHAR(50) NOT NULL,
-    config_json JSON NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Shop Settings
-CREATE TABLE shop_settings (
+CREATE TABLE IF NOT EXISTS shop_settings (
     shop_id CHAR(36) PRIMARY KEY,
     shop_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 75.00,
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
