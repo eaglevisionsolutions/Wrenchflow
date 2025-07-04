@@ -156,16 +156,16 @@ async function deleteEquipment(equipment_id, shop_id) {
   return apiRequest('equipment', 'DELETE', null, { id: equipment_id, shop_id });
 }
 // Parts
-async function getParts(shop_id) {
+export async function getParts(shop_id) {
   return apiRequest('parts', 'GET', null, { shop_id });
 }
-async function createPart(data) {
+export async function createPart(data) {
   return apiRequest('parts', 'POST', data);
 }
-async function updatePart(data) {
+export async function updatePart(data) {
   return apiRequest('parts', 'PUT', data);
 }
-async function deletePart(part_id, shop_id) {
+export async function deletePart(part_id, shop_id) {
   return apiRequest('parts', 'DELETE', null, { id: part_id, shop_id });
 }
 // Vendors
