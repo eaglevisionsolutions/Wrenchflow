@@ -1,26 +1,27 @@
+
 // Work Order Parts/Services fetchers for detailed print/export
-async function getWorkOrderParts(work_order_id, shop_id) {
+export async function getWorkOrderParts(work_order_id, shop_id) {
   return apiRequest('work_order_parts', 'GET', null, { work_order_id, shop_id });
 }
-async function getWorkOrderServices(work_order_id, shop_id) {
+export async function getWorkOrderServices(work_order_id, shop_id) {
   return apiRequest('work_order_services', 'GET', null, { work_order_id, shop_id });
 }
 // Themes
-async function getThemes() {
+export async function getThemes() {
   return apiRequest('themes', 'GET');
 }
-async function getThemeById(theme_id) {
+export async function getThemeById(theme_id) {
   return apiRequest('themes', 'GET', null, { id: theme_id });
 }
-async function setUserTheme(shop_user_id, theme_id) {
+export async function setUserTheme(shop_user_id, theme_id) {
   // This would POST or PUT to a user endpoint; placeholder for now
   return Promise.resolve();
 }
 // Work Orders
-async function getWorkOrders(shop_id) {
+export async function getWorkOrders(shop_id) {
   return apiRequest('work_orders', 'GET', null, { shop_id });
 }
-async function createWorkOrder(data) {
+export async function createWorkOrder(data) {
   // Save work order, then save parts/services if present
   const wo = await apiRequest('work_orders', 'POST', data);
   const work_order_id = wo.work_order_id;
@@ -36,7 +37,7 @@ async function createWorkOrder(data) {
   }
   return wo;
 }
-async function updateWorkOrder(data) {
+export async function updateWorkOrder(data) {
   const wo = await apiRequest('work_orders', 'PUT', data);
   // For simplicity, delete all and re-add (production: use diff logic)
   await apiRequest('work_order_parts', 'DELETE', null, { work_order_id: data.work_order_id, shop_id: data.shop_id });
@@ -54,33 +55,33 @@ async function updateWorkOrder(data) {
   return wo;
 }
 
-async function deleteWorkOrder(work_order_id, shop_id) {
+export async function deleteWorkOrder(work_order_id, shop_id) {
   return apiRequest('work_orders', 'DELETE', null, { id: work_order_id, shop_id });
 }
 // Employees
-async function getEmployees(shop_id) {
+export async function getEmployees(shop_id) {
   return apiRequest('employees', 'GET', null, { shop_id });
 }
-async function createEmployee(data) {
+export async function createEmployee(data) {
   return apiRequest('employees', 'POST', data);
 }
-async function updateEmployee(data) {
+export async function updateEmployee(data) {
   return apiRequest('employees', 'PUT', data);
 }
-async function deleteEmployee(employee_id, shop_id) {
+export async function deleteEmployee(employee_id, shop_id) {
   return apiRequest('employees', 'DELETE', null, { id: employee_id, shop_id });
 }
 // Appointments
-async function getAppointments(shop_id) {
+export async function getAppointments(shop_id) {
   return apiRequest('appointments', 'GET', null, { shop_id });
 }
-async function createAppointment(data) {
+export async function createAppointment(data) {
   return apiRequest('appointments', 'POST', data);
 }
-async function updateAppointment(data) {
+export async function updateAppointment(data) {
   return apiRequest('appointments', 'PUT', data);
 }
-async function deleteAppointment(appointment_id, shop_id) {
+export async function deleteAppointment(appointment_id, shop_id) {
   return apiRequest('appointments', 'DELETE', null, { id: appointment_id, shop_id });
 }
 // api-service.js
