@@ -1,4 +1,8 @@
 <?php
+// Start session before any output
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // Load .env for debug flag
 $envFile = __DIR__ . '/.env';
 $env = [];

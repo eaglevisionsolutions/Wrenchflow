@@ -1,7 +1,9 @@
 <?php
 class Auth {
     public static function check() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['user'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Unauthorized']);
@@ -10,15 +12,21 @@ class Auth {
         return $_SESSION['user'];
     }
     public static function login($user) {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['user'] = $user;
     }
     public static function logout() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         session_destroy();
     }
     public static function user() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         return $_SESSION['user'] ?? null;
     }
 }
