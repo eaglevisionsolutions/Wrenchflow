@@ -13,4 +13,15 @@ class Database {
     public function getConnection() {
         return $this->pdo;
     }
+
+}
+
+// Global helper to get PDO connection
+function get_db() {
+    static $db = null;
+    if ($db === null) {
+        $database = new Database();
+        $db = $database->getConnection();
+    }
+    return $db;
 }
