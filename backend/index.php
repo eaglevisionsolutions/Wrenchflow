@@ -11,12 +11,6 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
     session_start();
 }
-
-// Debug: Log session ID and user if APP_DEBUG is true
-if ($appDebug) {
-    error_log('SESSION ID: ' . session_id());
-    error_log('SESSION USER: ' . print_r($_SESSION['user'] ?? null, true));
-}
 // Load .env for debug flag
 $envFile = __DIR__ . '/.env';
 $env = [];
@@ -28,6 +22,11 @@ if (file_exists($envFile)) {
     }
 }
 $appDebug = isset($env['APP_DEBUG']) && strtolower($env['APP_DEBUG']) === 'true';
+// Debug: Log session ID and user if APP_DEBUG is true
+if ($appDebug) {
+    error_log('SESSION ID: ' . session_id());
+    error_log('SESSION USER: ' . print_r($_SESSION['user'] ?? null, true));
+}
 if ($appDebug) {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
