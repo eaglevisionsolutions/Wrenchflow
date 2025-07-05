@@ -10,6 +10,7 @@ class AppointmentController extends BaseController {
     }
     // GET /appointments?shop_id=...
     public function getAll($shop_id) {
+        Auth::check();
         $stmt = $this->db->prepare('SELECT * FROM appointments WHERE shop_id = ?');
         $stmt->execute([$shop_id]);
         $appointments = $stmt->fetchAll();
@@ -17,6 +18,7 @@ class AppointmentController extends BaseController {
     }
     // POST /appointments
     public function create($data) {
+        Auth::check();
         // ...validate $data...
         $stmt = $this->db->prepare('INSERT INTO appointments (shop_id, customer_id, equipment_id, appointment_date, appointment_time, service_type, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
@@ -28,6 +30,7 @@ class AppointmentController extends BaseController {
     }
     // GET /appointments/{id}
     public function getById($id, $shop_id) {
+        Auth::check();
         AccessControl::requireShopAccess($shop_id);
         $stmt = $this->db->prepare('SELECT * FROM appointments WHERE appointment_id = ? AND shop_id = ?');
         $stmt->execute([$id, $shop_id]);
@@ -40,6 +43,7 @@ class AppointmentController extends BaseController {
     }
     // PUT /appointments
     public function update($data) {
+        Auth::check();
         AccessControl::requireShopAccess($data['shop_id']);
         $stmt = $this->db->prepare('UPDATE appointments SET customer_id=?, equipment_id=?, appointment_date=?, appointment_time=?, service_type=?, notes=?, status=? WHERE appointment_id=? AND shop_id=?');
         $stmt->execute([
@@ -49,6 +53,7 @@ class AppointmentController extends BaseController {
     }
     // DELETE /appointments?id=...&shop_id=...
     public function delete($id, $shop_id) {
+        Auth::check();
         AccessControl::requireShopAccess($shop_id);
         $stmt = $this->db->prepare('DELETE FROM appointments WHERE appointment_id = ? AND shop_id = ?');
         $stmt->execute([$id, $shop_id]);

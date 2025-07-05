@@ -10,6 +10,7 @@ class VendorController extends BaseController {
     }
     // GET /vendors?shop_id=...
     public function getAll($shop_id) {
+        Auth::check();
         $stmt = $this->db->prepare('SELECT * FROM vendors WHERE shop_id = ?');
         $stmt->execute([$shop_id]);
         $vendors = $stmt->fetchAll();
@@ -17,6 +18,7 @@ class VendorController extends BaseController {
     }
     // POST /vendors
     public function create($data) {
+        Auth::check();
         // ...validate $data...
         $stmt = $this->db->prepare('INSERT INTO vendors (shop_id, vendor_name, contact_person, phone_number, email, address, notes) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
@@ -28,6 +30,7 @@ class VendorController extends BaseController {
     }
     // GET /vendors/{id}
     public function getById($id, $shop_id) {
+        Auth::check();
         AccessControl::requireShopAccess($shop_id);
         $stmt = $this->db->prepare('SELECT * FROM vendors WHERE vendor_id = ? AND shop_id = ?');
         $stmt->execute([$id, $shop_id]);
@@ -40,6 +43,7 @@ class VendorController extends BaseController {
     }
     // PUT /vendors
     public function update($data) {
+        Auth::check();
         AccessControl::requireShopAccess($data['shop_id']);
         $stmt = $this->db->prepare('UPDATE vendors SET vendor_name=?, contact_person=?, phone_number=?, email=?, address=?, notes=? WHERE vendor_id=? AND shop_id=?');
         $stmt->execute([
@@ -49,6 +53,7 @@ class VendorController extends BaseController {
     }
     // DELETE /vendors?id=...&shop_id=...
     public function delete($id, $shop_id) {
+        Auth::check();
         AccessControl::requireShopAccess($shop_id);
         $stmt = $this->db->prepare('DELETE FROM vendors WHERE vendor_id = ? AND shop_id = ?');
         $stmt->execute([$id, $shop_id]);

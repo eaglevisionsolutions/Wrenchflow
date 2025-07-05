@@ -10,6 +10,7 @@ class PartController extends BaseController {
     }
     // GET /parts?shop_id=...
     public function getAll($shop_id) {
+        Auth::check();
         $stmt = $this->db->prepare('SELECT * FROM parts WHERE shop_id = ?');
         $stmt->execute([$shop_id]);
         $parts = $stmt->fetchAll();
@@ -17,6 +18,7 @@ class PartController extends BaseController {
     }
     // POST /parts
     public function create($data) {
+        Auth::check();
         // ...validate $data...
         $stmt = $this->db->prepare('INSERT INTO parts (shop_id, part_name, part_number, description, cost_price, sale_price, quantity_on_hand, minimum_stock_level, bin_location, is_bulk, bulk_unit_measure, bulk_total_cost_delivery, bulk_total_volume_delivered, bulk_markup_percentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
@@ -29,6 +31,7 @@ class PartController extends BaseController {
     }
     // GET /parts/{id}
     public function getById($id, $shop_id) {
+        Auth::check();
         AccessControl::requireShopAccess($shop_id);
         $stmt = $this->db->prepare('SELECT * FROM parts WHERE part_id = ? AND shop_id = ?');
         $stmt->execute([$id, $shop_id]);
@@ -41,6 +44,7 @@ class PartController extends BaseController {
     }
     // PUT /parts
     public function update($data) {
+        Auth::check();
         AccessControl::requireShopAccess($data['shop_id']);
         $stmt = $this->db->prepare('UPDATE parts SET part_name=?, part_number=?, description=?, cost_price=?, sale_price=?, quantity_on_hand=?, minimum_stock_level=?, bin_location=?, is_bulk=?, bulk_unit_measure=?, bulk_total_cost_delivery=?, bulk_total_volume_delivered=?, bulk_markup_percentage=? WHERE part_id=? AND shop_id=?');
         $stmt->execute([
@@ -50,6 +54,7 @@ class PartController extends BaseController {
     }
     // DELETE /parts?id=...&shop_id=...
     public function delete($id, $shop_id) {
+        Auth::check();
         AccessControl::requireShopAccess($shop_id);
         $stmt = $this->db->prepare('DELETE FROM parts WHERE part_id = ? AND shop_id = ?');
         $stmt->execute([$id, $shop_id]);
