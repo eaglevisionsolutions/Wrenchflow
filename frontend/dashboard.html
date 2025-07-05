@@ -184,5 +184,11 @@
       };
     }
   </script>
+  <script>
+    // Enable debug logging in frontend if DEBUG_APP is set in localStorage or window
+    window.DEBUG_APP = (window.DEBUG_APP !== undefined)
+      ? window.DEBUG_APP
+      : (localStorage.getItem('DEBUG_APP') === 'true');
+  </script>
 </body>
 </html>

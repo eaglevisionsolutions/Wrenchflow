@@ -383,5 +383,10 @@
     };
     loadWorkOrders();
   </script>
+  <script>
+    window.DEBUG_APP = (window.DEBUG_APP !== undefined)
+      ? window.DEBUG_APP
+      : (localStorage.getItem('DEBUG_APP') === 'true');
+  </script>
 </body>
 </html>

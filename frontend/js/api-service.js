@@ -86,6 +86,8 @@ export async function deleteAppointment(appointment_id, shop_id) {
 }
 // api-service.js
 // Generic API service for WrenchFlow
+
+// Enable debug logging if window.DEBUG_APP is true
 const API_BASE = '/api/';
 
 export async function apiRequest(resource, method = 'GET', data = null, params = {}) {
@@ -101,6 +103,9 @@ export async function apiRequest(resource, method = 'GET', data = null, params =
   if (data && method !== 'GET') {
     options.body = JSON.stringify(data);
   }
+  if (window.DEBUG_APP) {
+    console.log('[API REQUEST]', { resource, method, data, params, url, options });
+  }
   const res = await fetch(url, options);
   if (!res.ok) {
     let err;
@@ -115,11 +120,21 @@ export async function apiRequest(resource, method = 'GET', data = null, params =
       const conflictError = new Error('Sync conflict');
       conflictError.conflict = true;
       conflictError.serverData = serverData;
+      if (window.DEBUG_APP) {
+        console.log('[API ERROR - CONFLICT]', conflictError);
+      }
       throw conflictError;
+    }
+    if (window.DEBUG_APP) {
+      console.log('[API ERROR]', err);
     }
     throw new Error(err.error || 'API error');
   }
-  return res.json();
+  const json = await res.json();
+  if (window.DEBUG_APP) {
+    console.log('[API RESPONSE]', json);
+  }
+  return json;
 }
 
 // Sale Line Items
