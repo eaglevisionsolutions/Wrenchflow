@@ -80,7 +80,7 @@
     window.DEBUG_APP = (window.DEBUG_APP !== undefined)
       ? window.DEBUG_APP
       : (localStorage.getItem('DEBUG_APP') === 'true');
-    window.isOnline = isOnline;
+    // window.isOnline is now set globally by sync-manager.js
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
     if (window.renderStatusBar) window.renderStatusBar();
     // --- Global Dark Mode Toggle ---
