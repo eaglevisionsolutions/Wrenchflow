@@ -3,9 +3,22 @@
 // Ensure no whitespace or output before this line!
 class ConfigController {
     public function getAll() {
-        require_once __DIR__ . '/../config.php';
+        // Always read .env file directly for APP_DEBUG
+        $envPath = __DIR__ . '/../.env';
+        $debug = false;
+        if (file_exists($envPath)) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '' || strpos($line, '#') === 0) continue;
+                if (strpos($line, 'APP_DEBUG=') === 0) {
+                    $value = trim(substr($line, strlen('APP_DEBUG=')));
+                    $debug = ($value === 'true' || $value === '1');
+                    break;
+                }
+            }
+        }
         header('Content-Type: application/json');
-        $debug = (getenv('APP_DEBUG') === 'true') || (defined('APP_DEBUG') && APP_DEBUG === true);
         echo json_encode([
             'APP_DEBUG' => $debug
         ]);
