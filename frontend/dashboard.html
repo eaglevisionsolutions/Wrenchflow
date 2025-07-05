@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    // Redirect to login if not logged in
+    var user = JSON.parse(localStorage.getItem('wf_user') || 'null');
+    if (!user || !user.shop_id) {
+      window.location.href = 'login.html';
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - WrenchFlow</title>
@@ -98,7 +105,7 @@
         document.getElementById('darkmode-icon').textContent = '🌙';
       }
     }
-    const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
+    // user variable already declared in <head> for auth check
     if (!user || !user.shop_id) {
       window.location.href = 'login.html';
     }

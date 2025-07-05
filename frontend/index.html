@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <script>
-    // --- Auth check: redirect to login if not logged in ---
+    // Redirect to dashboard if logged in, else to login page
     const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-    if (!user || !user.shop_id) {
+    if (user && user.shop_id) {
+      window.location.href = 'dashboard.html';
+    } else {
       window.location.href = 'login.html';
     }
   </script>
