@@ -35,9 +35,13 @@ export async function processSyncQueue() {
   setQueue(queue);
 }
 window.addEventListener('online', processSyncQueue);
+
 export function isOnline() {
   return navigator.onLine;
 }
+
+// Always expose isOnline globally for all pages
+window.isOnline = isOnline;
 
 // Expose for UI
 window.getSyncQueue = getQueue;
