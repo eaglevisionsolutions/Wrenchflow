@@ -73,9 +73,11 @@
   <script type="module" src="js/ui-components.js"></script>
   <script type="module" src="js/sync-manager.js"></script>
   <script>
-    window.DEBUG_APP = (window.DEBUG_APP !== undefined)
-      ? window.DEBUG_APP
-      : (localStorage.getItem('DEBUG_APP') === 'true');
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(cfg => {
+        window.DEBUG_APP = !!cfg.APP_DEBUG;
+      });
     window.isOnline = isOnline;
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
     renderStatusBar();

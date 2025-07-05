@@ -29,6 +29,7 @@ require_once __DIR__ . '/Auth.php';
 require_once __DIR__ . '/AccessControl.php';
 
 // Autoload controllers
+
 $controllers = [
     'customers' => 'CustomerController',
     'equipment' => 'EquipmentController',
@@ -44,7 +45,8 @@ $controllers = [
     'employees' => 'EmployeeController',
     'shops' => 'ShopController',
     'shop_settings' => 'ShopSettingController',
-    'auth' => 'AuthController', // Add auth controller
+    'auth' => 'AuthController',
+    'config' => 'ConfigController', // Expose config endpoint
 ];
 
 foreach ($controllers as $key => $class) {

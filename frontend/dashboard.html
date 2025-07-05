@@ -185,6 +185,14 @@
     }
   </script>
   <script>
+    // Set window.DEBUG_APP from backend /api/config endpoint
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(cfg => {
+        window.DEBUG_APP = !!cfg.APP_DEBUG;
+      });
+  </script>
+  <script>
     // Enable debug logging in frontend if DEBUG_APP is set in localStorage or window
     window.DEBUG_APP = (window.DEBUG_APP !== undefined)
       ? window.DEBUG_APP
