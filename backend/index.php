@@ -11,6 +11,12 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
     session_start();
 }
+
+// Debug: Log session ID and user if APP_DEBUG is true
+if ($appDebug) {
+    error_log('SESSION ID: ' . session_id());
+    error_log('SESSION USER: ' . print_r($_SESSION['user'] ?? null, true));
+}
 // Load .env for debug flag
 $envFile = __DIR__ . '/.env';
 $env = [];
