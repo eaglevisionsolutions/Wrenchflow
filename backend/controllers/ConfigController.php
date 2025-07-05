@@ -1,6 +1,6 @@
-echo json_encode([
 <?php
 // backend/controllers/ConfigController.php
+// Ensure no whitespace or output before this line!
 class ConfigController {
     public function getAll() {
         require_once __DIR__ . '/../config.php';
