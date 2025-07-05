@@ -66,8 +66,8 @@ if ($segments[0] !== 'api' || !$resource || !isset($controllers[$resource])) {
 }
 $controller = new $controllers[$resource]();
 
-// Auth check (except login route)
-if (!(($resource === 'auth' && $method === 'POST') || ($resource === 'auth' && $method === 'logout'))) {
+// Auth check (except login route and config route)
+if (!((($resource === 'auth' && $method === 'POST') || ($resource === 'auth' && $method === 'logout')) || $resource === 'config')) {
     Auth::check();
 }
 
