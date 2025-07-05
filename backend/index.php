@@ -1,6 +1,14 @@
 <?php
-// Start session before any output
+// Set session cookie params for compatibility and security
 if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '', // Set to your domain if needed, e.g. '.wrenchflow.com'
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 }
 // Load .env for debug flag
