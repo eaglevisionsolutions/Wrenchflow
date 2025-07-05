@@ -76,7 +76,6 @@
   <script type="module" src="js/ui-components.js"></script>
   <script type="module" src="js/sync-manager.js"></script>
   <script>
-    window.isOnline = isOnline;
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
     renderStatusBar();
     // --- Global Dark Mode Toggle ---

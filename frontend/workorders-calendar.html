@@ -34,7 +34,6 @@
   <script src="js/calendar-view.js"></script>
   <script src="js/sync-manager.js"></script>
   <script>
-    window.isOnline = isOnline;
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
     renderStatusBar();
     const shop_id = '11111111-1111-1111-1111-111111111111';
