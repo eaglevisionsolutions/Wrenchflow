@@ -1,3 +1,5 @@
+// Expose renderTable globally for legacy/non-module scripts
+window.renderTable = renderTable;
 // Modal for sync conflict resolution
 export function showSyncConflictModal(queueItem, serverData) {
   return new Promise((resolve) => {
