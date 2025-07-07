@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-    // --- Auth check: redirect to login if not logged in ---
-    const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-    if (!user || !user.shop_id) {
-      window.location.href = 'login.html';
-    }
-  </script>
+  <!-- Auth check handled in module script below; removed duplicate user declaration -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customers - WrenchFlow</title>
@@ -66,23 +60,23 @@
   </div>
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <script type="module" src="js/api-service.js"></script>
-  <script type="module" src="js/ui-components.js"></script>
-  <script type="module" src="js/sync-manager.js"></script>
-  <script>
+  <script type="module">
+    import { renderTable, showMessage } from './js/ui-components.js';
+    import * as WrenchFlowAPI from './js/api-service.js';
+
+    // Fetch config for debug
     fetch('/api/config')
       .then(r => r.json())
       .then(cfg => {
         window.DEBUG_APP = !!cfg.APP_DEBUG;
       });
-  </script>
-  <script>
+
     window.DEBUG_APP = (window.DEBUG_APP !== undefined)
       ? window.DEBUG_APP
       : (localStorage.getItem('DEBUG_APP') === 'true');
-    // window.isOnline is now set globally by sync-manager.js
     window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
     if (window.renderStatusBar) window.renderStatusBar();
+
     // --- Global Dark Mode Toggle ---
     function setDarkMode(enabled) {
       if (enabled) {
@@ -112,6 +106,8 @@
       };
     }
     // Use shop_id from logged-in user
+    // Use shop_id from logged-in user
+    // (user is already declared at the top of this module script)
     const shop_id = user && user.shop_id ? user.shop_id : '';
     const tableDiv = document.getElementById('customer-table');
     const form = document.getElementById('customer-form');
@@ -123,7 +119,7 @@
         .then(data => {
           let filter = '';
           if (window.customerTableFilter !== undefined) filter = window.customerTableFilter;
-          WrenchFlowUI.renderTable(tableDiv, data, [
+          renderTable(tableDiv, data, [
             { key: 'first_name', label: 'First Name' },
             { key: 'last_name', label: 'Last Name' },
             { key: 'phone_number', label: 'Phone' },
@@ -143,7 +139,7 @@
             btn.onclick = () => deleteCustomer(btn.dataset.id);
           });
         })
-        .catch(e => WrenchFlowUI.showMessage(e.message, 'danger'));
+        .catch(e => showMessage(e.message, 'danger'));
     }
     function editCustomer(id, data) {
       const cust = data.find(c => c.customer_id === id);
@@ -161,10 +157,10 @@
       if (!confirm('Delete this customer?')) return;
       WrenchFlowAPI.deleteCustomer(id, shop_id)
         .then(() => {
-          WrenchFlowUI.showMessage('Customer deleted!', 'success');
+          showMessage('Customer deleted!', 'success');
           loadCustomers();
         })
-        .catch(e => WrenchFlowUI.showMessage(e.message, 'danger'));
+        .catch(e => showMessage(e.message, 'danger'));
     }
     addBtn.onclick = () => {
       form.classList.remove('d-none');
@@ -190,16 +186,16 @@
       const action = editingId ? WrenchFlowAPI.updateCustomer : WrenchFlowAPI.createCustomer;
       action(data)
         .then(() => {
-          WrenchFlowUI.showMessage(editingId ? 'Customer updated!' : 'Customer added!', 'success');
+          showMessage(editingId ? 'Customer updated!' : 'Customer added!', 'success');
           form.classList.add('d-none');
           addBtn.classList.remove('d-none');
           loadCustomers();
         })
-        .catch(e => WrenchFlowUI.showMessage(e.message, 'danger'));
+        .catch(e => showMessage(e.message, 'danger'));
     };
     window.WrenchFlowUI = window.WrenchFlowUI || {};
-    WrenchFlowUI.renderTable = window.WrenchFlowUI.renderTable || renderTable;
-    WrenchFlowUI.showMessage = window.WrenchFlowUI.showMessage || showMessage;
+    WrenchFlowUI.renderTable = renderTable;
+    WrenchFlowUI.showMessage = showMessage;
     loadCustomers();
   </script>
 </body>

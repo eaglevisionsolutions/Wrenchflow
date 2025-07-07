@@ -6,12 +6,7 @@
   <title>Work Orders - WrenchFlow</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/main.css">
-  <script>
-    // --- Auth check: redirect to login if not logged in ---
-    const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-    if (!user || !user.shop_id) {
-      window.location.href = 'login.html';
-    }
+  <!-- Auth check handled in module script; removed duplicate user declaration -->
     // Theme CSS loader (applies to all pages)
     try {
       if (user && user.theme_id) {
