@@ -1151,3 +1151,20 @@ if (page === 'workorders-calendar.html') {
     loadCalendar();
   }
 }
+
+// --- Inject Shop Settings menu item for shop admins ---
+document.addEventListener('DOMContentLoaded', () => {
+  const user = getCurrentUser();
+  if (user && user.role === 'admin') {
+    // Find all sidebars
+    document.querySelectorAll('.sidebar .nav.flex-column').forEach(ul => {
+      // Prevent duplicate
+      if (!ul.querySelector('a[href="shop-settings.html"]')) {
+        const li = document.createElement('li');
+        li.className = 'nav-item mb-2';
+        li.innerHTML = '<a class="nav-link d-flex align-items-center gap-2" href="shop-settings.html"><span class="bi bi-gear"></span> Shop Settings</a>';
+        ul.appendChild(li);
+      }
+    });
+  }
+});
