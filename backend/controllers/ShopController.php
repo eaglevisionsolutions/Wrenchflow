@@ -22,6 +22,29 @@ class ShopController extends BaseController {
         $shop->save();
         $this->jsonResponse(['success' => true, 'shop_id' => $shop->shop_id], 201);
     }
-    // You may want to add update, delete, getById methods here as in other controllers
-    // ...add update, delete, getById methods...
+    // GET /shops/:id
+    public function get($shop_id) {
+        $shop = Shop::find($shop_id);
+        if ($shop) {
+            $this->jsonResponse($shop->toArray());
+        } else {
+            $this->jsonResponse(['error' => 'Shop not found'], 404);
+        }
+    }
+
+    // PUT /shops/:id
+    public function update($data) {
+        if (!isset($data['shop_id'])) {
+            $this->jsonResponse(['error' => 'Missing shop_id'], 400);
+            return;
+        }
+        $shop = Shop::find($data['shop_id']);
+        if (!$shop) {
+            $this->jsonResponse(['error' => 'Shop not found'], 404);
+            return;
+        }
+        $shop->fromArray($data);
+        $shop->save();
+        $this->jsonResponse(['success' => true, 'shop_id' => $shop->shop_id], 200);
+    }
 }

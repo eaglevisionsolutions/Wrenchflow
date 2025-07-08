@@ -1,3 +1,10 @@
+// Shop Info (for admin editing)
+export async function getShopById(shop_id) {
+  return apiRequest('shops', 'GET', null, { id: shop_id });
+}
+export async function updateShop(data) {
+  return apiRequest('shops', 'PUT', data);
+}
 // Sales
 export async function getSales(shop_id) {
   return apiRequest('sales', 'GET', null, { shop_id });

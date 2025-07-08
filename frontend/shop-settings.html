@@ -38,6 +38,21 @@
     <div class="flex-grow-1 p-4">
       <h1>Shop Settings</h1>
       <form id="shop-settings-form">
+        <div id="shop-info-section" style="display:none">
+          <h5>Shop Information</h5>
+          <div class="mb-3">
+            <label for="shop_name" class="form-label">Shop Name</label>
+            <input type="text" class="form-control" id="shop_name">
+          </div>
+          <div class="mb-3">
+            <label for="subscription_status" class="form-label">Subscription Status</label>
+            <input type="text" class="form-control" id="subscription_status" disabled>
+          </div>
+          <div class="mb-3">
+            <label for="billing_email" class="form-label">Billing Email</label>
+            <input type="email" class="form-control" id="billing_email">
+          </div>
+        </div>
         <div class="mb-3">
           <label for="retail_labour_rate" class="form-label">Retail Labour Rate ($/hr)</label>
           <input type="number" step="0.01" class="form-control" id="retail_labour_rate" required>
