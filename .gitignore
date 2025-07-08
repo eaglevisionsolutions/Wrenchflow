@@ -1,12 +1,15 @@
 # General ignores
 .DS_Store
 .env
-.env.local
+*.env
+.env.*
 .vscode/ # VS Code settings
 .idea/ # IntelliJ/PHPStorm IDE settings
 *.log
 *.sql # Avoid committing database dumps
 *.txt
+*.htaccess
+.htaccess.*
 
 # PHP specific ignores
 /vendor/ # Composer dependencies
