@@ -201,4 +201,17 @@ export async function deleteVendor(vendor_id, shop_id) {
   return apiRequest('vendors', 'DELETE', null, { id: vendor_id, shop_id });
 }
 
+// Shop Settings
+export async function getShopSettings(shop_id) {
+  return apiRequest('shop_settings', 'GET', null, { shop_id });
+}
+export async function updateShopSettings(data) {
+  // Use POST for createOrUpdate pattern
+  return apiRequest('shop_settings', 'POST', data);
+}
+export async function createShopSettings(data) {
+  // Alias for updateShopSettings for clarity
+  return updateShopSettings(data);
+}
+
 
