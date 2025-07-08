@@ -1,9 +1,41 @@
 // main.js - Central entry point for all WrenchFlow frontend logic
 
+
 import { renderTable, showMessage } from './ui-components.js';
 import { renderCalendar } from './calendar-view.js';
 import * as WrenchFlowAPI from './api-service.js';
 import { isOnline, queueSync } from './sync-manager.js';
+
+// --- Theme CSS Loader (Reusable) ---
+/**
+ * Loads and applies the theme CSS for a given themeId (string).
+ * Removes any existing theme CSS link with id 'wf-theme-css'.
+ * @param {string} themeId
+ * @returns {Promise<void>}
+ */
+export async function loadThemeCss(themeId) {
+  // Remove any existing theme CSS link
+  const oldLink = document.getElementById('wf-theme-css');
+  if (oldLink) oldLink.remove();
+  if (!themeId) return;
+  try {
+    // Try to get theme config from API
+    const res = await fetch('/api/themes?id=' + themeId);
+    const theme = await res.json();
+    if (theme && theme.config_json) {
+      const config = JSON.parse(theme.config_json);
+      if (config.css_url) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.id = 'wf-theme-css';
+        link.href = config.css_url;
+        document.head.appendChild(link);
+      }
+    }
+  } catch (e) {
+    // Fail silently
+  }
+}
 
 // --- Global Dark Mode Toggle ---
 function setDarkMode(enabled) {
@@ -480,25 +512,10 @@ if (page === 'customers.html') {
 // --- Dashboard Page Logic ---
 if (page === 'dashboard.html') {
   // ...existing dashboard logic...
-  try {
-    const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-    if (user && user.theme_id) {
-      fetch('/api/themes?id=' + user.theme_id)
-        .then(r => r.json())
-        .then(theme => {
-          if (theme && theme.config_json) {
-            const config = JSON.parse(theme.config_json);
-            if (config.css_url) {
-              const link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.id = 'wf-theme-css';
-              link.href = config.css_url;
-              document.head.appendChild(link);
-            }
-          }
-        });
-    }
-  } catch {}
+  const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
+  if (user && user.theme_id) {
+    loadThemeCss(user.theme_id);
+  }
   Promise.all([
     WrenchFlowAPI.getWorkOrders(),
     WrenchFlowAPI.getAppointments(),
@@ -945,40 +962,11 @@ if (page === 'profile.html') {
     const themeSel = document.getElementById('profile-theme');
     themeSel.innerHTML = '<option value="">Default</option>' + themes.map(t => `<option value="${t.theme_id}" ${t.theme_id===currentThemeId?'selected':''}>${t.theme_name}</option>`).join('');
     // Theme CSS loader
-    let themeLink = document.getElementById('wf-theme-css');
-    if (themeLink) themeLink.remove();
-    if (currentThemeId) {
-      const selectedTheme = themes.find(t => t.theme_id === currentThemeId);
-      if (selectedTheme && selectedTheme.config_json) {
-        const config = JSON.parse(selectedTheme.config_json);
-        if (config.css_url) {
-          themeLink = document.createElement('link');
-          themeLink.rel = 'stylesheet';
-          themeLink.id = 'wf-theme-css';
-          themeLink.href = config.css_url;
-          document.head.appendChild(themeLink);
-        }
-      }
-    }
+    await loadThemeCss(currentThemeId);
   }
   // --- Theme Preview Logic ---
   function applyTheme(themeId) {
-    const themeLink = document.getElementById('wf-theme-css');
-    if (themeLink) themeLink.remove();
-    if (!themeId) return;
-    WrenchFlowAPI.getThemes().then(themes => {
-      const selectedTheme = themes.find(t => t.theme_id === themeId);
-      if (selectedTheme && selectedTheme.config_json) {
-        const config = JSON.parse(selectedTheme.config_json);
-        if (config.css_url) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.id = 'wf-theme-css';
-          link.href = config.css_url;
-          document.head.appendChild(link);
-        }
-      }
-    });
+    loadThemeCss(themeId);
   }
   document.getElementById('preview-theme-btn').onclick = function() {
     const themeId = document.getElementById('profile-theme').value;
@@ -1013,28 +1001,11 @@ if (page === 'index.html' || page === '') {
   const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
   if (user && user.shop_id) {
     window.location.href = 'dashboard.html';
-    return;
-  } else if (page === 'index.html' || page === '') {
+  } else {
     // Only run the rest if not redirected
-    // Theme CSS loader (applies to all pages)
-    try {
-      if (user && user.theme_id) {
-        fetch('/api/themes?id=' + user.theme_id)
-          .then(r => r.json())
-          .then(theme => {
-            if (theme && theme.config_json) {
-              const config = JSON.parse(theme.config_json);
-              if (config.css_url) {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.id = 'wf-theme-css';
-                link.href = config.css_url;
-                document.head.appendChild(link);
-              }
-            }
-          });
-      }
-    } catch {}
+    if (user && user.theme_id) {
+      loadThemeCss(user.theme_id);
+    }
     // Customer CRUD logic
     const shop_id = '11111111-1111-1111-1111-111111111111'; // Example, replace with actual session/shop
     const tableDiv = document.getElementById('customer-table');
@@ -1098,32 +1069,32 @@ if (page === 'workorders-calendar.html') {
   const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
   if (!user || !user.shop_id) {
     window.location.href = 'login.html';
-    return;
+  } else {
+    const shop_id = '11111111-1111-1111-1111-111111111111'; // Example, replace with actual session/shop
+    const calendarDiv = document.getElementById('calendar');
+    const detailsDiv = document.getElementById('details');
+    function loadCalendar() {
+      WrenchFlowAPI.getWorkOrders(shop_id)
+        .then(data => {
+          const items = data.map(w => ({
+            id: w.work_order_id,
+            date: w.date_created.split('T')[0],
+            title: w.status + ' - ' + (w.reported_problem || '')
+          }));
+          if (typeof renderCalendar === 'function') {
+            renderCalendar(calendarDiv, items, {
+              dateKey: 'date',
+              titleKey: 'title',
+              onClick: id => showDetails(id, data)
+            });
+          }
+        });
+    }
+    function showDetails(id, data) {
+      const wo = data.find(w => w.work_order_id === id);
+      if (!wo) return;
+      detailsDiv.innerHTML = `<div class='card'><div class='card-body'><h5>Work Order Details</h5><p><b>Date:</b> ${wo.date_created}</p><p><b>Status:</b> ${wo.status}</p><p><b>Problem:</b> ${wo.reported_problem}</p><p><b>Diagnosis:</b> ${wo.diagnosis}</p><p><b>Repair Notes:</b> ${wo.repair_notes}</p></div></div>`;
+    }
+    loadCalendar();
   }
-  const shop_id = '11111111-1111-1111-1111-111111111111'; // Example, replace with actual session/shop
-  const calendarDiv = document.getElementById('calendar');
-  const detailsDiv = document.getElementById('details');
-  function loadCalendar() {
-    WrenchFlowAPI.getWorkOrders(shop_id)
-      .then(data => {
-        const items = data.map(w => ({
-          id: w.work_order_id,
-          date: w.date_created.split('T')[0],
-          title: w.status + ' - ' + (w.reported_problem || '')
-        }));
-        if (typeof renderCalendar === 'function') {
-          renderCalendar(calendarDiv, items, {
-            dateKey: 'date',
-            titleKey: 'title',
-            onClick: id => showDetails(id, data)
-          });
-        }
-      });
-  }
-  function showDetails(id, data) {
-    const wo = data.find(w => w.work_order_id === id);
-    if (!wo) return;
-    detailsDiv.innerHTML = `<div class='card'><div class='card-body'><h5>Work Order Details</h5><p><b>Date:</b> ${wo.date_created}</p><p><b>Status:</b> ${wo.status}</p><p><b>Problem:</b> ${wo.reported_problem}</p><p><b>Diagnosis:</b> ${wo.diagnosis}</p><p><b>Repair Notes:</b> ${wo.repair_notes}</p></div></div>`;
-  }
-  loadCalendar();
 }
