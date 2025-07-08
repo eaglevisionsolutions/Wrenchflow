@@ -1,9 +1,20 @@
 // main.js - Central entry point for all WrenchFlow frontend logic
-
 import { renderTable, showMessage } from './ui-components.js';
 import { renderCalendar } from './calendar-view.js';
 import * as WrenchFlowAPI from './api-service.js';
 import { isOnline, queueSync } from './sync-manager.js';
+
+// --- Global Logout Button Handler ---
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      localStorage.removeItem('wf_user');
+      window.location.href = 'login.html';
+    });
+  }
+});
 
 // --- User/Shop Session Helpers ---
 function getCurrentUser() {
