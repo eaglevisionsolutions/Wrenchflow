@@ -10,6 +10,7 @@ class Employee {
     public $last_name;
     public $email;
     public $selected_theme_id;
+    public $password_hash;
 
     public function fromArray($data) {
         foreach ($data as $key => $value) {
