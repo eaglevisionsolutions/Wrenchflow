@@ -146,60 +146,62 @@ function deleteWorkOrder(id) {
     .catch(e => showMessage(e.message, 'danger'));
 }
 
-// Only attach DOM event handlers and call loadWorkOrders if on workorders-advanced.html
+// Only attach DOM event handlers and call loadWorkOrders if on workorders-advanced.html AND elements exist
 const page = window.location.pathname.split('/').pop();
-if (page === 'workorders-advanced.html') {
-  if (addBtn && cancelBtn && form) {
-    addBtn.onclick = async () => {
-      await loadDropdowns();
-      partsUsed = [];
-      services = [];
-      renderPartsTable();
-      renderServicesTable();
-      form.classList.remove('d-none');
-      addBtn.classList.add('d-none');
-      editingId = null;
-      form.reset();
+if (
+  page === 'workorders-advanced.html' &&
+  addBtn && cancelBtn && form &&
+  typeof addBtn.onclick !== 'undefined' && typeof cancelBtn.onclick !== 'undefined'
+) {
+  addBtn.onclick = async () => {
+    await loadDropdowns();
+    partsUsed = [];
+    services = [];
+    renderPartsTable();
+    renderServicesTable();
+    form.classList.remove('d-none');
+    addBtn.classList.add('d-none');
+    editingId = null;
+    form.reset();
+  };
+  cancelBtn.onclick = () => {
+    form.classList.add('d-none');
+    addBtn.classList.remove('d-none');
+  };
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const data = {
+      ...(editingId ? { work_order_id: editingId } : {}),
+      shop_id,
+      equipment_id: form.equipment_id.value,
+      customer_id: equipmentList.find(eq => eq.equipment_id === form.equipment_id.value)?.customer_id,
+      date_created: form.date_created.value,
+      status: form.status.value,
+      reported_problem: form.reported_problem.value,
+      diagnosis: form.diagnosis.value,
+      repair_notes: form.repair_notes.value,
+      technician_id: form.technician_id.value,
+      parts: partsUsed,
+      services: services
     };
-    cancelBtn.onclick = () => {
+    const action = editingId ? WrenchFlowAPI.updateWorkOrder : WrenchFlowAPI.createWorkOrder;
+    if (!isOnline()) {
+      queueSync('work_orders', editingId ? 'PUT' : 'POST', data);
+      showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
-    };
-    form.onsubmit = async e => {
-      e.preventDefault();
-      const data = {
-        ...(editingId ? { work_order_id: editingId } : {}),
-        shop_id,
-        equipment_id: form.equipment_id.value,
-        customer_id: equipmentList.find(eq => eq.equipment_id === form.equipment_id.value)?.customer_id,
-        date_created: form.date_created.value,
-        status: form.status.value,
-        reported_problem: form.reported_problem.value,
-        diagnosis: form.diagnosis.value,
-        repair_notes: form.repair_notes.value,
-        technician_id: form.technician_id.value,
-        parts: partsUsed,
-        services: services
-      };
-      const action = editingId ? WrenchFlowAPI.updateWorkOrder : WrenchFlowAPI.createWorkOrder;
-      if (!isOnline()) {
-        queueSync('work_orders', editingId ? 'PUT' : 'POST', data);
-        showMessage('Saved offline. Will sync when online.', 'info');
+      loadWorkOrders();
+      return;
+    }
+    action(data)
+      .then(() => {
+        showMessage(editingId ? 'Work order updated!' : 'Work order added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadWorkOrders();
-        return;
-      }
-      action(data)
-        .then(() => {
-          showMessage(editingId ? 'Work order updated!' : 'Work order added!', 'success');
-          form.classList.add('d-none');
-          addBtn.classList.remove('d-none');
-          loadWorkOrders();
-        })
-        .catch(e => showMessage(e.message, 'danger'));
-    };
-  }
+      })
+      .catch(e => showMessage(e.message, 'danger'));
+  };
   loadWorkOrders();
 }
 
