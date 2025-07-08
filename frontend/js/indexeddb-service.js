@@ -16,7 +16,8 @@ function openDB() {
       const db = event.target.result;
       STORE_NAMES.forEach(store => {
         if (!db.objectStoreNames.contains(store)) {
-          db.createObjectStore(store, { keyPath: 'id', autoIncrement: false });
+          // Use autoIncrement true for integer IDs
+          db.createObjectStore(store, { keyPath: 'id', autoIncrement: true });
         }
       });
     };
@@ -33,7 +34,10 @@ async function addData(storeName, data) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
-    tx.objectStore(storeName).add(data);
+    // Remove any explicit id on create, let IndexedDB assign it if not present
+    const toAdd = { ...data };
+    if (toAdd.id === undefined || toAdd.id === null) delete toAdd.id;
+    tx.objectStore(storeName).add(toAdd);
     tx.oncomplete = () => resolve(true);
     tx.onerror = e => reject(e);
   });
@@ -53,6 +57,7 @@ async function updateData(storeName, data) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
+    // For update, id must be present
     tx.objectStore(storeName).put(data);
     tx.oncomplete = () => resolve(true);
     tx.onerror = e => reject(e);

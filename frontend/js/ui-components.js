@@ -1,3 +1,33 @@
+// --- Work Order UI Rendering Helpers ---
+
+export function buildEquipmentOptions(equipmentList) {
+  return '<option value="">Select Equipment</option>' +
+    equipmentList.map(e => `<option value="${e.equipment_id}">${e.unit_type} - ${e.make} (${e.serial_number})</option>`).join('');
+}
+
+export function buildTechnicianOptions(employeeList) {
+  return '<option value="">Select Technician</option>' +
+    employeeList.filter(e => e.role === 'technician').map(e => `<option value="${e.shop_user_id}">${e.first_name} ${e.last_name}</option>`).join('');
+}
+
+export function buildPartOptions(partList) {
+  return '<option value="">Select Part</option>' +
+    partList.map(p => `<option value="${p.part_id}">${p.part_name} (${p.part_number})</option>`).join('');
+}
+
+export function renderPartsTableRows(partsUsed) {
+  return partsUsed.map((p, i) =>
+    `<tr><td>${p.name}</td><td>${p.qty}</td><td><button class='btn btn-sm btn-danger' data-index='${i}' data-action='remove-part'>Remove</button></td></tr>`
+  ).join('');
+}
+
+export function renderServicesTableRows(services) {
+  return services.map((s, i) =>
+    `<tr><td>${s.desc}</td><td>${s.hours}</td><td><button class='btn btn-sm btn-danger' data-index='${i}' data-action='remove-service'>Remove</button></td></tr>`
+  ).join('');
+}
+// Expose renderTable globally for legacy/non-module scripts
+window.renderTable = renderTable;
 // Modal for sync conflict resolution
 export function showSyncConflictModal(queueItem, serverData) {
   return new Promise((resolve) => {

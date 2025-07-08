@@ -6,33 +6,28 @@ require_once __DIR__ . '/BaseController.php';
 class CustomerController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /customers?shop_id=...
     public function getAll($shop_id) {
-        $stmt = $this->db->prepare('SELECT * FROM customers WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $customers = $stmt->fetchAll();
-        $this->jsonResponse($customers);
+        $customers = Customer::all($shop_id);
+        $result = array_map(function($c) { return $c->toArray(); }, $customers);
+        $this->jsonResponse($result);
     }
     // POST /customers
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO customers (customer_id, shop_id, first_name, last_name, phone_number, email, address) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([
-            $data['customer_id'], $data['shop_id'], $data['first_name'], $data['last_name'],
-            $data['phone_number'], $data['email'], $data['address']
-        ]);
-        $this->jsonResponse(['success' => true, 'customer_id' => $data['customer_id']], 201);
+        $customer = new Customer();
+        $customer->fromArray($data);
+        $customer->save();
+        $this->jsonResponse(['success' => true, 'customer_id' => $customer->customer_id], 201);
     }
     // GET /customers/{id}
     public function getById($id, $shop_id) {
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('SELECT * FROM customers WHERE customer_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $customer = $stmt->fetch();
-        if ($customer) {
-            $this->jsonResponse($customer);
+        $customer = Customer::find($id);
+        if ($customer && $customer->shop_id == $shop_id) {
+            $this->jsonResponse($customer->toArray());
         } else {
             $this->errorResponse('Not found', 404);
         }
@@ -40,17 +35,24 @@ class CustomerController extends BaseController {
     // PUT /customers
     public function update($data) {
         AccessControl::requireShopAccess($data['shop_id']);
-        $stmt = $this->db->prepare('UPDATE customers SET first_name=?, last_name=?, phone_number=?, email=?, address=? WHERE customer_id=? AND shop_id=?');
-        $stmt->execute([
-            $data['first_name'], $data['last_name'], $data['phone_number'], $data['email'], $data['address'], $data['customer_id'], $data['shop_id']
-        ]);
-        $this->jsonResponse(['success' => true]);
+        $customer = Customer::find($data['customer_id']);
+        if ($customer && $customer->shop_id == $data['shop_id']) {
+            $customer->fromArray($data);
+            $customer->save();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
     // DELETE /customers?id=...&shop_id=...
     public function delete($id, $shop_id) {
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('DELETE FROM customers WHERE customer_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $this->jsonResponse(['success' => true]);
+        $customer = Customer::find($id);
+        if ($customer && $customer->shop_id == $shop_id) {
+            $customer->delete();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
 }

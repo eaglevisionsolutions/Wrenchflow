@@ -1,3 +1,15 @@
+// Sales
+export async function getSales(shop_id) {
+  return apiRequest('sales', 'GET', null, { shop_id });
+}
+
+// Work Order Parts/Services fetchers for detailed print/export
+export async function getWorkOrderParts(work_order_id, shop_id) {
+  return apiRequest('work_order_parts', 'GET', null, { work_order_id, shop_id });
+}
+export async function getWorkOrderServices(work_order_id, shop_id) {
+  return apiRequest('work_order_services', 'GET', null, { work_order_id, shop_id });
+}
 // Themes
 export async function getThemes() {
   return apiRequest('themes', 'GET');
@@ -16,14 +28,15 @@ export async function getWorkOrders(shop_id) {
 export async function createWorkOrder(data) {
   // Save work order, then save parts/services if present
   const wo = await apiRequest('work_orders', 'POST', data);
+  const work_order_id = wo.work_order_id;
   if (data.parts && data.parts.length) {
     for (const part of data.parts) {
-      await apiRequest('work_order_parts', 'POST', { ...part, work_order_id: data.work_order_id, shop_id: data.shop_id });
+      await apiRequest('work_order_parts', 'POST', { ...part, work_order_id, shop_id: data.shop_id });
     }
   }
   if (data.services && data.services.length) {
     for (const svc of data.services) {
-      await apiRequest('work_order_services', 'POST', { ...svc, work_order_id: data.work_order_id, shop_id: data.shop_id });
+      await apiRequest('work_order_services', 'POST', { ...svc, work_order_id, shop_id: data.shop_id });
     }
   }
   return wo;
@@ -45,6 +58,7 @@ export async function updateWorkOrder(data) {
   }
   return wo;
 }
+
 export async function deleteWorkOrder(work_order_id, shop_id) {
   return apiRequest('work_orders', 'DELETE', null, { id: work_order_id, shop_id });
 }
@@ -76,9 +90,11 @@ export async function deleteAppointment(appointment_id, shop_id) {
 }
 // api-service.js
 // Generic API service for WrenchFlow
+
+// Enable debug logging if window.DEBUG_APP is true
 const API_BASE = '/api/';
 
-async function apiRequest(resource, method = 'GET', data = null, params = {}) {
+export async function apiRequest(resource, method = 'GET', data = null, params = {}) {
   let url = API_BASE + resource;
   if (method === 'GET' && Object.keys(params).length) {
     url += '?' + new URLSearchParams(params).toString();
@@ -90,6 +106,9 @@ async function apiRequest(resource, method = 'GET', data = null, params = {}) {
   };
   if (data && method !== 'GET') {
     options.body = JSON.stringify(data);
+  }
+  if (window.DEBUG_APP) {
+    console.log('[API REQUEST]', { resource, method, data, params, url, options });
   }
   const res = await fetch(url, options);
   if (!res.ok) {
@@ -105,13 +124,27 @@ async function apiRequest(resource, method = 'GET', data = null, params = {}) {
       const conflictError = new Error('Sync conflict');
       conflictError.conflict = true;
       conflictError.serverData = serverData;
+      if (window.DEBUG_APP) {
+        console.log('[API ERROR - CONFLICT]', conflictError);
+      }
       throw conflictError;
+    }
+    if (window.DEBUG_APP) {
+      console.log('[API ERROR]', err);
     }
     throw new Error(err.error || 'API error');
   }
-  return res.json();
+  const json = await res.json();
+  if (window.DEBUG_APP) {
+    console.log('[API RESPONSE]', json);
+  }
+  return json;
 }
 
+// Sale Line Items
+export async function getSaleLineItems(sale_id) {
+  return apiRequest('sale_line_items', 'GET', null, { sale_id });
+}
 // Example resource-specific helpers
 export async function getCustomers(shop_id) {
   return apiRequest('customers', 'GET', null, { shop_id });
@@ -168,27 +201,17 @@ export async function deleteVendor(vendor_id, shop_id) {
   return apiRequest('vendors', 'DELETE', null, { id: vendor_id, shop_id });
 }
 
-window.WrenchFlowAPI = {
-  apiRequest,
-  getCustomers,
-  getCustomerById,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
-  getEquipment,
-  createEquipment,
-  getThemes,
-  getThemeById,
-  setUserTheme,
-  updateEquipment,
-  deleteEquipment,
-  getParts,
-  createPart,
-  updatePart,
-  deletePart,
-  getVendors,
-  createVendor,
-  updateVendor,
-  deleteVendor,
-  // ...add other resource helpers here
-};
+// Shop Settings
+export async function getShopSettings(shop_id) {
+  return apiRequest('shop_settings', 'GET', null, { shop_id });
+}
+export async function updateShopSettings(data) {
+  // Use POST for createOrUpdate pattern
+  return apiRequest('shop_settings', 'POST', data);
+}
+export async function createShopSettings(data) {
+  // Alias for updateShopSettings for clarity
+  return updateShopSettings(data);
+}
+
+

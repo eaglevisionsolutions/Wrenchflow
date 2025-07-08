@@ -6,22 +6,38 @@ require_once __DIR__ . '/BaseController.php';
 class ShopSettingController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /shop_settings?shop_id=...
+        public function getAll($shop_id) {
+        $settings = ShopSetting::all($shop_id);
+        $result = array_map(function($s) { return $s->toArray(); }, $settings);
+        $this->jsonResponse($result);
+    }
+
     public function get($shop_id) {
-        $stmt = $this->db->prepare('SELECT * FROM shop_settings WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $setting = $stmt->fetch();
-        $this->jsonResponse($setting);
+        $setting = ShopSetting::find($shop_id);
+        if ($setting) {
+            $this->jsonResponse($setting->toArray());
+        } else {
+            $this->jsonResponse(null);
+        }
     }
     // POST /shop_settings
-    public function createOrUpdate($data) {
+    public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('REPLACE INTO shop_settings (shop_id, shop_labour_rate) VALUES (?, ?)');
-        $stmt->execute([
-            $data['shop_id'], $data['shop_labour_rate']
-        ]);
-        $this->jsonResponse(['success' => true, 'shop_id' => $data['shop_id']], 201);
+        $setting = new ShopSetting();
+        $setting->fromArray($data);
+        $setting->create();
+        $this->jsonResponse(['success' => true, 'shop_id' => $setting->shop_id], 201);
+    }
+
+    // PUT /shop_settings
+    public function update($data) {
+        // ...validate $data...
+        $setting = new ShopSetting();
+        $setting->fromArray($data);
+        $setting->update();
+        $this->jsonResponse(['success' => true, 'shop_id' => $setting->shop_id], 200);
     }
 }

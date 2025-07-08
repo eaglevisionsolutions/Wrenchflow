@@ -6,46 +6,50 @@ require_once __DIR__ . '/BaseController.php';
 class ThemeController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /themes
     public function getAll() {
-        $stmt = $this->db->query('SELECT * FROM themes');
-        $themes = $stmt->fetchAll();
-        $this->jsonResponse($themes);
+        $themes = Theme::all();
+        $result = array_map(function($t) { return $t->toArray(); }, $themes);
+        $this->jsonResponse($result);
     }
     // POST /themes
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO themes (theme_id, theme_name, config_json) VALUES (?, ?, ?)');
-        $stmt->execute([
-            $data['theme_id'], $data['theme_name'], $data['config_json']
-        ]);
-        $this->jsonResponse(['success' => true, 'theme_id' => $data['theme_id']], 201);
+        $theme = new Theme();
+        $theme->fromArray($data);
+        $theme->save();
+        $this->jsonResponse(['success' => true, 'theme_id' => $theme->theme_id], 201);
     }
     // GET /themes/{id}
     public function getById($id) {
-        $stmt = $this->db->prepare('SELECT * FROM themes WHERE theme_id = ?');
-        $stmt->execute([$id]);
-        $theme = $stmt->fetch();
+        $theme = Theme::find($id);
         if ($theme) {
-            $this->jsonResponse($theme);
+            $this->jsonResponse($theme->toArray());
         } else {
             $this->errorResponse('Not found', 404);
         }
     }
     // PUT /themes
     public function update($data) {
-        $stmt = $this->db->prepare('UPDATE themes SET theme_name=?, config_json=? WHERE theme_id=?');
-        $stmt->execute([
-            $data['theme_name'], $data['config_json'], $data['theme_id']
-        ]);
-        $this->jsonResponse(['success' => true]);
+        $theme = Theme::find($data['theme_id']);
+        if ($theme) {
+            $theme->fromArray($data);
+            $theme->save();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
     // DELETE /themes?id=...
     public function delete($id) {
-        $stmt = $this->db->prepare('DELETE FROM themes WHERE theme_id = ?');
-        $stmt->execute([$id]);
-        $this->jsonResponse(['success' => true]);
+        $theme = Theme::find($id);
+        if ($theme) {
+            $theme->delete();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
 }

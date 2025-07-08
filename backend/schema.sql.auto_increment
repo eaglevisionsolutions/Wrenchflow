@@ -1,22 +1,15 @@
--- WrenchFlow MySQL Schema
+-- WrenchFlow MySQL Schema (Auto-Increment IDs)
 -- Shops
-CREATE TABLE IF NOT EXISTS shops (
-    shop_id CHAR(36) PRIMARY KEY,
+CREATE TABLE shops (
+    shop_id INT AUTO_INCREMENT PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
     subscription_status ENUM('active','inactive','trial') NOT NULL DEFAULT 'trial',
     billing_email VARCHAR(255) NOT NULL
 );
--- Themes
-CREATE TABLE IF NOT EXISTS themes (
-    theme_id CHAR(36) PRIMARY KEY,
-    theme_name VARCHAR(50) NOT NULL,
-    config_json JSON NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
 
 -- Platform Users
-CREATE TABLE IF NOT EXISTS platform_users (
-    platform_user_id CHAR(36) PRIMARY KEY,
+CREATE TABLE platform_users (
+    platform_user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('super_admin','platform_employee') NOT NULL,
@@ -25,25 +18,25 @@ CREATE TABLE IF NOT EXISTS platform_users (
 );
 
 -- Shop Users
-CREATE TABLE IF NOT EXISTS shop_users (
-    shop_user_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
+CREATE TABLE shop_users (
+    shop_user_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
     username VARCHAR(50) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('admin','manager','technician','parts_manager','service_manager','employee') NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(255),
-    selected_theme_id CHAR(36),
+    selected_theme_id INT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id),
     FOREIGN KEY (selected_theme_id) REFERENCES themes(theme_id)
 );
 
 -- Customers
-CREATE TABLE IF NOT EXISTS customers (
-    customer_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
+CREATE TABLE customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
@@ -54,10 +47,10 @@ CREATE TABLE IF NOT EXISTS customers (
 );
 
 -- Equipment
-CREATE TABLE IF NOT EXISTS equipment (
-    equipment_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
-    customer_id CHAR(36) NOT NULL,
+CREATE TABLE equipment (
+    equipment_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    customer_id INT NOT NULL,
     unit_type VARCHAR(30) NOT NULL,
     make VARCHAR(50) NOT NULL,
     model_number VARCHAR(50) NOT NULL,
@@ -71,9 +64,9 @@ CREATE TABLE IF NOT EXISTS equipment (
 );
 
 -- Parts
-CREATE TABLE IF NOT EXISTS parts (
-    part_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
+CREATE TABLE parts (
+    part_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
     part_name VARCHAR(100) NOT NULL,
     part_number VARCHAR(50) NOT NULL,
     description TEXT,
@@ -93,9 +86,9 @@ CREATE TABLE IF NOT EXISTS parts (
 );
 
 -- Vendors
-CREATE TABLE IF NOT EXISTS vendors (
-    vendor_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
+CREATE TABLE vendors (
+    vendor_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
     vendor_name VARCHAR(100) NOT NULL,
     contact_person VARCHAR(100),
     phone_number VARCHAR(20),
@@ -108,31 +101,31 @@ CREATE TABLE IF NOT EXISTS vendors (
 );
 
 -- Part-Vendor Relations (Many-to-Many)
-CREATE TABLE IF NOT EXISTS part_vendor_relations (
-    part_id CHAR(36) NOT NULL,
-    vendor_id CHAR(36) NOT NULL,
+CREATE TABLE part_vendor_relations (
+    part_id INT NOT NULL,
+    vendor_id INT NOT NULL,
     PRIMARY KEY (part_id, vendor_id),
     FOREIGN KEY (part_id) REFERENCES parts(part_id),
     FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id)
 );
 
 -- Parts Orders
-CREATE TABLE IF NOT EXISTS parts_orders (
-    order_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
+CREATE TABLE parts_orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     expected_delivery_date DATE,
-    vendor_id CHAR(36) NOT NULL,
+    vendor_id INT NOT NULL,
     order_status ENUM('Draft','Ordered','Partially Received','Received','Canceled') NOT NULL DEFAULT 'Draft',
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id),
     FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id)
 );
 
 -- Parts Order Line Items
-CREATE TABLE IF NOT EXISTS parts_order_line_items (
-    line_item_id CHAR(36) PRIMARY KEY,
-    order_id CHAR(36) NOT NULL,
-    part_id CHAR(36),
+CREATE TABLE parts_order_line_items (
+    line_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    part_id INT,
     ordered_quantity INT NOT NULL,
     unit_cost_at_order DECIMAL(10,2) NOT NULL,
     is_new_part BOOLEAN DEFAULT 0,
@@ -141,10 +134,10 @@ CREATE TABLE IF NOT EXISTS parts_order_line_items (
 );
 
 -- Parts Order Receipts
-CREATE TABLE IF NOT EXISTS parts_order_receipts (
-    receipt_id CHAR(36) PRIMARY KEY,
-    order_id CHAR(36) NOT NULL,
-    line_item_id CHAR(36) NOT NULL,
+CREATE TABLE parts_order_receipts (
+    receipt_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    line_item_id INT NOT NULL,
     received_quantity INT NOT NULL,
     vendor_invoice_number VARCHAR(100) NOT NULL,
     actual_cost_per_unit DECIMAL(10,2) NOT NULL,
@@ -155,17 +148,17 @@ CREATE TABLE IF NOT EXISTS parts_order_receipts (
 );
 
 -- Work Orders
-CREATE TABLE IF NOT EXISTS work_orders (
-    work_order_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
-    equipment_id CHAR(36) NOT NULL,
-    customer_id CHAR(36) NOT NULL,
+CREATE TABLE work_orders (
+    work_order_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    equipment_id INT NOT NULL,
+    customer_id INT NOT NULL,
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
     status ENUM('Open','In Progress','Ready for Pickup','Completed','Canceled') NOT NULL DEFAULT 'Open',
     reported_problem TEXT NOT NULL,
     diagnosis TEXT,
     repair_notes TEXT,
-    technician_id CHAR(36),
+    technician_id INT,
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id),
     FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
@@ -173,10 +166,10 @@ CREATE TABLE IF NOT EXISTS work_orders (
 );
 
 -- Work Order Parts
-CREATE TABLE IF NOT EXISTS work_order_parts (
-    work_order_part_id CHAR(36) PRIMARY KEY,
-    work_order_id CHAR(36) NOT NULL,
-    part_id CHAR(36) NOT NULL,
+CREATE TABLE work_order_parts (
+    work_order_part_id INT AUTO_INCREMENT PRIMARY KEY,
+    work_order_id INT NOT NULL,
+    part_id INT NOT NULL,
     quantity_used DECIMAL(10,2) NOT NULL,
     is_bulk BOOLEAN DEFAULT 0,
     volume_used DECIMAL(10,2),
@@ -186,22 +179,21 @@ CREATE TABLE IF NOT EXISTS work_order_parts (
 );
 
 -- Work Order Services
-CREATE TABLE IF NOT EXISTS work_order_services (
-    work_order_service_id CHAR(36) PRIMARY KEY,
-    work_order_id CHAR(36) NOT NULL,
+CREATE TABLE work_order_services (
+    work_order_service_id INT AUTO_INCREMENT PRIMARY KEY,
+    work_order_id INT NOT NULL,
     service_description TEXT NOT NULL,
     hours_spent DECIMAL(5,2) NOT NULL,
     labour_rate_at_time DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (work_order_id) REFERENCES work_orders(work_order_id)
 );
 
--- Employees (Shop Users Table is used for employees)
 -- Appointments
-CREATE TABLE IF NOT EXISTS appointments (
-    appointment_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
-    customer_id CHAR(36) NOT NULL,
-    equipment_id CHAR(36),
+CREATE TABLE appointments (
+    appointment_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    equipment_id INT,
     appointment_date DATE NOT NULL,
     appointment_time TIME NOT NULL,
     service_type VARCHAR(50) NOT NULL,
@@ -214,10 +206,10 @@ CREATE TABLE IF NOT EXISTS appointments (
 );
 
 -- Sales (Over-the-Counter)
-CREATE TABLE IF NOT EXISTS sales (
-    sale_id CHAR(36) PRIMARY KEY,
-    shop_id CHAR(36) NOT NULL,
-    customer_id CHAR(36),
+CREATE TABLE sales (
+    sale_id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id INT NOT NULL,
+    customer_id INT,
     sale_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     total_sale_amount DECIMAL(10,2) NOT NULL,
     total_cost_of_goods_sold DECIMAL(10,2) NOT NULL,
@@ -226,10 +218,10 @@ CREATE TABLE IF NOT EXISTS sales (
 );
 
 -- Sale Line Items
-CREATE TABLE IF NOT EXISTS sale_line_items (
-    sale_line_item_id CHAR(36) PRIMARY KEY,
-    sale_id CHAR(36) NOT NULL,
-    part_id CHAR(36) NOT NULL,
+CREATE TABLE sale_line_items (
+    sale_line_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
+    part_id INT NOT NULL,
     quantity_sold DECIMAL(10,2) NOT NULL,
     is_bulk BOOLEAN DEFAULT 0,
     volume_sold DECIMAL(10,2),
@@ -238,12 +230,17 @@ CREATE TABLE IF NOT EXISTS sale_line_items (
     FOREIGN KEY (part_id) REFERENCES parts(part_id)
 );
 
--- Shop Settings
+-- Themes
+CREATE TABLE themes (
+    theme_id INT AUTO_INCREMENT PRIMARY KEY,
+    theme_name VARCHAR(50) NOT NULL,
+    config_json JSON NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE IF NOT EXISTS shop_settings (
-    shop_id CHAR(36) PRIMARY KEY,
-    retail_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 75.00,
-    internal_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 60.00,
-    warranty_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 50.00,
+-- Shop Settings
+CREATE TABLE shop_settings (
+    shop_id INT PRIMARY KEY,
+    shop_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 75.00,
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
 );

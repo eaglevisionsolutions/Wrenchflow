@@ -21,7 +21,8 @@ export async function processSyncQueue() {
     const { resource, method, data } = queue[i];
     try {
       await apiRequest(resource, method, data);
-      queue.splice(i, 1); i--;
+      queue.splice(i, 1);
+      i--;
     } catch (e) {
       if (e && e.conflict) {
         // Show conflict modal and wait for user resolution
@@ -34,11 +35,17 @@ export async function processSyncQueue() {
   }
   setQueue(queue);
 }
+
 window.addEventListener('online', processSyncQueue);
+
+
 export function isOnline() {
   return navigator.onLine;
 }
 
-// Expose for UI
-window.getSyncQueue = getQueue;
-window.setSyncQueue = setQueue;
+// Always expose isOnline globally for all pages (for legacy/global code)
+if (typeof window !== 'undefined') {
+  window.isOnline = isOnline;
+  window.getSyncQueue = getQueue;
+  window.setSyncQueue = setQueue;
+}

@@ -6,22 +6,22 @@ require_once __DIR__ . '/BaseController.php';
 class ShopController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /shops
     public function getAll() {
-        $stmt = $this->db->query('SELECT * FROM shops');
-        $shops = $stmt->fetchAll();
-        $this->jsonResponse($shops);
+        $shops = Shop::all();
+        $result = array_map(function($s) { return $s->toArray(); }, $shops);
+        $this->jsonResponse($result);
     }
     // POST /shops
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO shops (shop_id, shop_name, subscription_status, billing_email) VALUES (?, ?, ?, ?)');
-        $stmt->execute([
-            $data['shop_id'], $data['shop_name'], $data['subscription_status'], $data['billing_email']
-        ]);
-        $this->jsonResponse(['success' => true, 'shop_id' => $data['shop_id']], 201);
+        $shop = new Shop();
+        $shop->fromArray($data);
+        $shop->save();
+        $this->jsonResponse(['success' => true, 'shop_id' => $shop->shop_id], 201);
     }
+    // You may want to add update, delete, getById methods here as in other controllers
     // ...add update, delete, getById methods...
 }

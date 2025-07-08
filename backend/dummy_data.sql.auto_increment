@@ -1,0 +1,46 @@
+-- Dummy data for WrenchFlow (Auto-Increment IDs)
+-- Shops
+INSERT INTO shops (shop_name, subscription_status, billing_email) VALUES
+  ('Ace Small Engine', 'active', 'ace@example.com'),
+  ('PowerPro Repair', 'trial', 'powerpro@example.com');
+
+-- Platform Users
+INSERT INTO platform_users (username, password_hash, role, email) VALUES
+  ('superadmin', '$2y$10$superadminhash', 'super_admin', 'admin@wrenchflow.com'),
+  ('platformemp', '$2y$10$platformemphash', 'platform_employee', 'emp@wrenchflow.com');
+
+-- Themes
+INSERT INTO themes (theme_name, config_json) VALUES
+  ('Light', '{"primary":"#1976d2","secondary":"#fff","background":"#f5f5f5","font":"Roboto,Arial,sans-serif"}'),
+  ('Dark', '{"primary":"#222","secondary":"#90caf9","background":"#121212","font":"Roboto,Arial,sans-serif"}'),
+  ('Green Shop', '{"primary":"#388e3c","secondary":"#fff","background":"#e8f5e9","font":"Roboto,Arial,sans-serif"}');
+
+-- Shop Users (assumes shop_id 1 and 2)
+INSERT INTO shop_users (shop_id, username, password_hash, role, first_name, last_name, email, selected_theme_id) VALUES
+  (1, 'aceadmin', '$2y$10$aceadminhash', 'admin', 'Alice', 'Smith', 'alice@ace.com', NULL),
+  (2, 'poweradmin', '$2y$10$poweradminhash', 'admin', 'Bob', 'Jones', 'bob@powerpro.com', NULL);
+
+-- Customers (assumes shop_id 1 and 2)
+INSERT INTO customers (shop_id, first_name, last_name, phone_number, email, address) VALUES
+  (1, 'John', 'Doe', '555-1234', 'john.doe@example.com', '123 Main St'),
+  (2, 'Jane', 'Roe', '555-5678', 'jane.roe@example.com', '456 Oak Ave');
+
+-- Equipment (assumes customer_id 1 and 2, shop_id 1 and 2)
+INSERT INTO equipment (shop_id, customer_id, unit_type, make, model_number, serial_number, purchase_date, notes) VALUES
+  (1, 1, 'Lawnmower', 'Honda', 'HRX217', 'SN12345', '2022-04-01', 'Needs blade sharpening'),
+  (2, 2, 'Snowblower', 'Toro', 'PowerMax', 'SN67890', '2023-01-15', 'Annual service');
+
+-- Vendors (assumes shop_id 1 and 2)
+INSERT INTO vendors (shop_id, vendor_name, contact_person, phone_number, email, address, notes) VALUES
+  (1, 'PartsCo', 'Sam Vendor', '555-1111', 'sam@partsco.com', '789 Parts Rd', 'Main supplier'),
+  (2, 'EquipMart', 'Sue Equip', '555-2222', 'sue@equipmart.com', '321 Equip Ave', 'Bulk fluids');
+
+-- Parts (assumes shop_id 1 and 2)
+INSERT INTO parts (shop_id, part_name, part_number, description, cost_price, sale_price, quantity_on_hand, minimum_stock_level, bin_location, is_bulk) VALUES
+  (1, 'Air Filter', 'AF-100', 'Standard air filter', 5.00, 9.99, 20, 5, 'A1', 0),
+  (2, 'Engine Oil 10W-30', 'EO-10W30', 'Bulk engine oil', 50.00, 0.00, 20, 5, 'B2', 1);
+
+-- Part-Vendor Relations (assumes part_id 1,2 and vendor_id 1,2)
+INSERT INTO part_vendor_relations (part_id, vendor_id) VALUES
+  (1, 1),
+  (2, 2);

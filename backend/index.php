@@ -1,10 +1,48 @@
 <?php
+// Set session cookie params for compatibility and security
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '', // Set to your domain if needed, e.g. '.wrenchflow.com'
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
+// Load .env for debug flag
+$envFile = __DIR__ . '/.env';
+$env = [];
+if (file_exists($envFile)) {
+    foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        [$k, $v] = array_map('trim', explode('=', $line, 2) + [1 => '']);
+        $env[$k] = $v;
+    }
+}
+$appDebug = isset($env['APP_DEBUG']) && strtolower($env['APP_DEBUG']) === 'true';
+// Debug: Log session ID and user if APP_DEBUG is true
+if ($appDebug) {
+    error_log('SESSION ID: ' . session_id());
+    error_log('SESSION USER: ' . print_r($_SESSION['user'] ?? null, true));
+}
+if ($appDebug) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+    error_reporting(0);
+}
 // Basic API routing for WrenchFlow
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/Auth.php';
 require_once __DIR__ . '/AccessControl.php';
 
 // Autoload controllers
+
 $controllers = [
     'customers' => 'CustomerController',
     'equipment' => 'EquipmentController',
@@ -20,6 +58,8 @@ $controllers = [
     'employees' => 'EmployeeController',
     'shops' => 'ShopController',
     'shop_settings' => 'ShopSettingController',
+    'auth' => 'AuthController',
+    'config' => 'ConfigController', // Expose config endpoint
 ];
 
 foreach ($controllers as $key => $class) {
@@ -39,8 +79,8 @@ if ($segments[0] !== 'api' || !$resource || !isset($controllers[$resource])) {
 }
 $controller = new $controllers[$resource]();
 
-// Auth check (except login route)
-if (!($resource === 'auth' && $method === 'POST')) {
+// Auth check (except login route and config route)
+if (!((($resource === 'auth' && $method === 'POST') || ($resource === 'auth' && $method === 'logout')) || $resource === 'config')) {
     Auth::check();
 }
 

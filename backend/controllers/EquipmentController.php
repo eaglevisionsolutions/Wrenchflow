@@ -6,33 +6,28 @@ require_once __DIR__ . '/BaseController.php';
 class EquipmentController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /equipment?shop_id=...
     public function getAll($shop_id) {
-        $stmt = $this->db->prepare('SELECT * FROM equipment WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $equipment = $stmt->fetchAll();
-        $this->jsonResponse($equipment);
+        $equipment = Equipment::all($shop_id);
+        $result = array_map(function($e) { return $e->toArray(); }, $equipment);
+        $this->jsonResponse($result);
     }
     // POST /equipment
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO equipment (equipment_id, shop_id, customer_id, unit_type, make, model_number, serial_number, purchase_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([
-            $data['equipment_id'], $data['shop_id'], $data['customer_id'], $data['unit_type'],
-            $data['make'], $data['model_number'], $data['serial_number'], $data['purchase_date'], $data['notes']
-        ]);
-        $this->jsonResponse(['success' => true, 'equipment_id' => $data['equipment_id']], 201);
+        $equipment = new Equipment();
+        $equipment->fromArray($data);
+        $equipment->save();
+        $this->jsonResponse(['success' => true, 'equipment_id' => $equipment->equipment_id], 201);
     }
     // GET /equipment/{id}
     public function getById($id, $shop_id) {
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('SELECT * FROM equipment WHERE equipment_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $equipment = $stmt->fetch();
-        if ($equipment) {
-            $this->jsonResponse($equipment);
+        $equipment = Equipment::find($id);
+        if ($equipment && $equipment->shop_id == $shop_id) {
+            $this->jsonResponse($equipment->toArray());
         } else {
             $this->errorResponse('Not found', 404);
         }
@@ -40,17 +35,24 @@ class EquipmentController extends BaseController {
     // PUT /equipment
     public function update($data) {
         AccessControl::requireShopAccess($data['shop_id']);
-        $stmt = $this->db->prepare('UPDATE equipment SET customer_id=?, unit_type=?, make=?, model_number=?, serial_number=?, purchase_date=?, notes=? WHERE equipment_id=? AND shop_id=?');
-        $stmt->execute([
-            $data['customer_id'], $data['unit_type'], $data['make'], $data['model_number'], $data['serial_number'], $data['purchase_date'], $data['notes'], $data['equipment_id'], $data['shop_id']
-        ]);
-        $this->jsonResponse(['success' => true]);
+        $equipment = Equipment::find($data['equipment_id']);
+        if ($equipment && $equipment->shop_id == $data['shop_id']) {
+            $equipment->fromArray($data);
+            $equipment->save();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
     // DELETE /equipment?id=...&shop_id=...
     public function delete($id, $shop_id) {
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('DELETE FROM equipment WHERE equipment_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $this->jsonResponse(['success' => true]);
+        $equipment = Equipment::find($id);
+        if ($equipment && $equipment->shop_id == $shop_id) {
+            $equipment->delete();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
 }

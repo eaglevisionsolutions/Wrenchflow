@@ -6,32 +6,28 @@ require_once __DIR__ . '/BaseController.php';
 class SaleController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /sales?shop_id=...
     public function getAll($shop_id) {
-        $stmt = $this->db->prepare('SELECT * FROM sales WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $sales = $stmt->fetchAll();
-        $this->jsonResponse($sales);
+        $sales = Sale::all($shop_id);
+        $result = array_map(function($s) { return $s->toArray(); }, $sales);
+        $this->jsonResponse($result);
     }
     // POST /sales
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO sales (sale_id, shop_id, customer_id, sale_date, total_sale_amount, total_cost_of_goods_sold) VALUES (?, ?, ?, ?, ?, ?)');
-        $stmt->execute([
-            $data['sale_id'], $data['shop_id'], $data['customer_id'], $data['sale_date'], $data['total_sale_amount'], $data['total_cost_of_goods_sold']
-        ]);
-        $this->jsonResponse(['success' => true, 'sale_id' => $data['sale_id']], 201);
+        $sale = new Sale();
+        $sale->fromArray($data);
+        $sale->save();
+        $this->jsonResponse(['success' => true, 'sale_id' => $sale->sale_id], 201);
     }
     // GET /sales/{id}
     public function getById($id, $shop_id) {
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('SELECT * FROM sales WHERE sale_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $sale = $stmt->fetch();
-        if ($sale) {
-            $this->jsonResponse($sale);
+        $sale = Sale::find($id);
+        if ($sale && $sale->shop_id == $shop_id) {
+            $this->jsonResponse($sale->toArray());
         } else {
             $this->errorResponse('Not found', 404);
         }
@@ -39,17 +35,24 @@ class SaleController extends BaseController {
     // PUT /sales
     public function update($data) {
         AccessControl::requireShopAccess($data['shop_id']);
-        $stmt = $this->db->prepare('UPDATE sales SET customer_id=?, sale_date=?, total_sale_amount=?, total_cost_of_goods_sold=? WHERE sale_id=? AND shop_id=?');
-        $stmt->execute([
-            $data['customer_id'], $data['sale_date'], $data['total_sale_amount'], $data['total_cost_of_goods_sold'], $data['sale_id'], $data['shop_id']
-        ]);
-        $this->jsonResponse(['success' => true]);
+        $sale = Sale::find($data['sale_id']);
+        if ($sale && $sale->shop_id == $data['shop_id']) {
+            $sale->fromArray($data);
+            $sale->save();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
     // DELETE /sales?id=...&shop_id=...
     public function delete($id, $shop_id) {
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('DELETE FROM sales WHERE sale_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $this->jsonResponse(['success' => true]);
+        $sale = Sale::find($id);
+        if ($sale && $sale->shop_id == $shop_id) {
+            $sale->delete();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
 }
