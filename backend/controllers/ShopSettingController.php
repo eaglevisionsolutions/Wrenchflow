@@ -24,11 +24,20 @@ class ShopSettingController extends BaseController {
         }
     }
     // POST /shop_settings
-    public function createOrUpdate($data) {
+    public function create($data) {
         // ...validate $data...
         $setting = new ShopSetting();
         $setting->fromArray($data);
-        $setting->save();
+        $setting->create();
         $this->jsonResponse(['success' => true, 'shop_id' => $setting->shop_id], 201);
+    }
+
+    // PUT /shop_settings
+    public function update($data) {
+        // ...validate $data...
+        $setting = new ShopSetting();
+        $setting->fromArray($data);
+        $setting->update();
+        $this->jsonResponse(['success' => true, 'shop_id' => $setting->shop_id], 200);
     }
 }
