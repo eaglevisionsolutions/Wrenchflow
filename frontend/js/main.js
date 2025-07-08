@@ -862,10 +862,11 @@ if (page === 'parts.html') {
 
 // --- Sales Page Logic ---
 if (page === 'sales.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('sales-table');
   // Print/Export button logic can be added here as needed
   function loadSales() {
-    WrenchFlowAPI.getSales()
+    WrenchFlowAPI.getSales(shop_id)
       .then(data => {
         renderTable(tableDiv, data, [
           { key: 'sale_id', label: 'Sale ID' },

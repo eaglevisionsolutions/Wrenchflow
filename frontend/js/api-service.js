@@ -1,3 +1,7 @@
+// Sales
+export async function getSales(shop_id) {
+  return apiRequest('sales', 'GET', null, { shop_id });
+}
 
 // Work Order Parts/Services fetchers for detailed print/export
 export async function getWorkOrderParts(work_order_id, shop_id) {
