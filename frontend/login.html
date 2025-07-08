@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-    // If already logged in, redirect to dashboard
-    const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-    if (user && user.shop_id) {
-      window.location.href = 'dashboard.html';
-    }
-  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - WrenchFlow</title>
@@ -30,32 +23,6 @@
       <div id="login-error" class="text-danger mt-2" style="display:none;"></div>
     </form>
   </div>
-  <script src="js/api-service.js"></script>
-  <script>
-    document.getElementById('login-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const errorDiv = document.getElementById('login-error');
-      errorDiv.style.display = 'none';
-      try {
-        // Call backend login API
-        const res = await fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        if (!res.ok) throw new Error('Invalid credentials');
-        const user = await res.json();
-        // Save user info and shop_id to localStorage
-        localStorage.setItem('wf_user', JSON.stringify(user));
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
-      } catch (err) {
-        errorDiv.textContent = 'Login failed: ' + (err.message || 'Unknown error');
-        errorDiv.style.display = 'block';
-      }
-    };
-  </script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

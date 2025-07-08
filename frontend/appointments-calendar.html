@@ -13,10 +13,6 @@
   <title>Appointments Calendar - WrenchFlow</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/main.css">
-  <style>
-    .calendar-item { background: #1976d2; color: #fff; margin: 2px 0; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.9em; }
-    .date-num { font-weight: bold; }
-  </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -36,56 +32,7 @@
     <div id="calendar"></div>
     <div id="details" class="mt-3"></div>
   </div>
-  <script src="js/api-service.js"></script>
-  <script src="js/calendar-view.js"></script>
-  <script src="js/sync-manager.js"></script>
-  <script>
-    window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
-    renderStatusBar();
-    // --- Global Dark Mode Toggle ---
-    function setDarkMode(enabled) {
-      if (enabled) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('wf_dark_mode', '1');
-        document.getElementById('darkmode-icon').textContent = '☀️';
-      } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.removeItem('wf_dark_mode');
-        document.getElementById('darkmode-icon').textContent = '🌙';
-      }
-    }
-    const globalDarkToggle = document.getElementById('global-darkmode-toggle');
-    if (globalDarkToggle) {
-      const dark = localStorage.getItem('wf_dark_mode') === '1';
-      setDarkMode(dark);
-      globalDarkToggle.onclick = function() {
-        setDarkMode(!document.body.classList.contains('dark-mode'));
-      };
-    }
-    const shop_id = '11111111-1111-1111-1111-111111111111';
-    const calendarDiv = document.getElementById('calendar');
-    const detailsDiv = document.getElementById('details');
-    function loadCalendar() {
-      WrenchFlowAPI.getAppointments(shop_id)
-        .then(data => {
-          const items = data.map(a => ({
-            id: a.appointment_id,
-            date: a.appointment_date,
-            title: a.service_type + ' - ' + (a.notes || '')
-          }));
-          renderCalendar(calendarDiv, items, {
-            dateKey: 'date',
-            titleKey: 'title',
-            onClick: id => showDetails(id, data)
-          });
-        });
-    }
-    function showDetails(id, data) {
-      const appt = data.find(a => a.appointment_id === id);
-      if (!appt) return;
-      detailsDiv.innerHTML = `<div class='card'><div class='card-body'><h5>Appointment Details</h5><p><b>Date:</b> ${appt.appointment_date} ${appt.appointment_time}</p><p><b>Service:</b> ${appt.service_type}</p><p><b>Notes:</b> ${appt.notes}</p></div></div>`;
-    }
-    loadCalendar();
-  </script>
+  <script type="module" src="js/main.js"></script>
+  <!-- All per-page and global JS is now loaded via main.js as a module. -->
 </body>
 </html>

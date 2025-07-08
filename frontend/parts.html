@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parts - WrenchFlow</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
@@ -61,137 +63,6 @@
       </form>
     </div>
   </div>
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <script type="module" src="js/api-service.js"></script>
-  <script type="module" src="js/ui-components.js"></script>
-  <script type="module" src="js/sync-manager.js"></script>
-  <script>
-    fetch('/api/config')
-      .then(r => r.json())
-      .then(cfg => {
-        window.DEBUG_APP = !!cfg.APP_DEBUG;
-      });
-  </script>
-  <script>
-    window.DEBUG_APP = (window.DEBUG_APP !== undefined)
-      ? window.DEBUG_APP
-      : (localStorage.getItem('DEBUG_APP') === 'true');
-    window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
-    renderStatusBar();
-    // --- Global Dark Mode Toggle ---
-    function setDarkMode(enabled) {
-      if (enabled) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('wf_dark_mode', '1');
-        document.getElementById('darkmode-icon').textContent = '☀️';
-      } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.removeItem('wf_dark_mode');
-        document.getElementById('darkmode-icon').textContent = '🌙';
-      }
-    }
-    const globalDarkToggle = document.getElementById('global-darkmode-toggle');
-    if (globalDarkToggle) {
-      const dark = localStorage.getItem('wf_dark_mode') === '1';
-      setDarkMode(dark);
-      globalDarkToggle.onclick = function() {
-        setDarkMode(!document.body.classList.contains('dark-mode'));
-      };
-    }
-    const shop_id = '11111111-1111-1111-1111-111111111111';
-    const tableDiv = document.getElementById('parts-table');
-    const form = document.getElementById('part-form');
-    const addBtn = document.getElementById('add-part-btn');
-    const cancelBtn = document.getElementById('cancel-part-btn');
-    let editingId = null;
-    function loadParts() {
-      WrenchFlowAPI.getParts(shop_id)
-        .then(data => {
-          let filter = '';
-          if (window.partsTableFilter !== undefined) filter = window.partsTableFilter;
-          WrenchFlowUI.renderTable(tableDiv, data, [
-            { key: 'part_name', label: 'Name' },
-            { key: 'part_number', label: 'Number' },
-            { key: 'cost_price', label: 'Cost' },
-            { key: 'sale_price', label: 'Sale' },
-            { key: 'quantity_on_hand', label: 'Qty' },
-            { key: 'bin_location', label: 'Bin' },
-            { key: 'actions', label: 'Actions', render: (row) => {
-              return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.part_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.part_id}'>Delete</button>`;
-            }}
-          ], {
-            filter,
-            onFilter: val => { window.partsTableFilter = val; loadParts(); }
-          });
-          // Attach edit/delete events
-          tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.onclick = () => editPart(btn.dataset.id, data);
-          });
-          tableDiv.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.onclick = () => deletePart(btn.dataset.id);
-          });
-        })
-        .catch(e => WrenchFlowUI.showMessage(e.message, 'danger'));
-    }
-    function editPart(id, data) {
-      const part = data.find(p => p.part_id === id);
-      if (!part) return;
-      editingId = id;
-      form.part_name.value = part.part_name;
-      form.part_number.value = part.part_number;
-      form.cost_price.value = part.cost_price;
-      form.sale_price.value = part.sale_price;
-      form.quantity_on_hand.value = part.quantity_on_hand;
-      form.bin_location.value = part.bin_location;
-      form.classList.remove('d-none');
-      addBtn.classList.add('d-none');
-    }
-    function deletePart(id) {
-      if (!confirm('Delete this part?')) return;
-      WrenchFlowAPI.deletePart(id, shop_id)
-        .then(() => {
-          WrenchFlowUI.showMessage('Part deleted!', 'success');
-          loadParts();
-        })
-        .catch(e => WrenchFlowUI.showMessage(e.message, 'danger'));
-    }
-    addBtn.onclick = () => {
-      form.classList.remove('d-none');
-      addBtn.classList.add('d-none');
-      editingId = null;
-      form.reset();
-    };
-    cancelBtn.onclick = () => {
-      form.classList.add('d-none');
-      addBtn.classList.remove('d-none');
-    };
-    form.onsubmit = e => {
-      e.preventDefault();
-      const data = {
-        ...(editingId ? { part_id: editingId } : {}), // Only send part_id if editing
-        shop_id,
-        part_name: form.part_name.value,
-        part_number: form.part_number.value,
-        cost_price: parseFloat(form.cost_price.value),
-        sale_price: parseFloat(form.sale_price.value),
-        quantity_on_hand: parseInt(form.quantity_on_hand.value),
-        bin_location: form.bin_location.value
-      };
-      const action = editingId ? WrenchFlowAPI.updatePart : WrenchFlowAPI.createPart;
-      action(data)
-        .then(() => {
-          WrenchFlowUI.showMessage(editingId ? 'Part updated!' : 'Part added!', 'success');
-          form.classList.add('d-none');
-          addBtn.classList.remove('d-none');
-          loadParts();
-        })
-        .catch(e => WrenchFlowUI.showMessage(e.message, 'danger'));
-    };
-    window.WrenchFlowUI = window.WrenchFlowUI || {};
-    WrenchFlowUI.renderTable = window.WrenchFlowUI.renderTable || renderTable;
-    WrenchFlowUI.showMessage = window.WrenchFlowUI.showMessage || showMessage;
-    loadParts();
-  </script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Profile & Settings - WrenchFlow</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
@@ -72,108 +74,6 @@
       </form>
     </div>
   </div>
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <script type="module" src="js/api-service.js"></script>
-  <script type="module" src="js/ui-components.js"></script>
-  <script type="module" src="js/sync-manager.js"></script>
-  <script>
-    fetch('/api/config')
-      .then(r => r.json())
-      .then(cfg => {
-        window.DEBUG_APP = !!cfg.APP_DEBUG;
-      });
-  </script>
-  <script>
-    window.getSyncQueue = () => JSON.parse(localStorage.getItem('wrenchflow_sync_queue')||'[]');
-    renderStatusBar();
-    // Load user info and themes, handle save
-    let currentThemeId = null;
-    async function loadProfile() {
-      // Placeholder: load user info from session/localStorage
-      const user = JSON.parse(localStorage.getItem('wf_user') || '{"username":"demo","email":"demo@example.com","first_name":"Demo","last_name":"User","theme_id":null}');
-      document.getElementById('profile-username').value = user.username;
-      document.getElementById('profile-email').value = user.email;
-      document.getElementById('profile-firstname').value = user.first_name;
-      document.getElementById('profile-lastname').value = user.last_name;
-      currentThemeId = user.theme_id;
-      // Load themes
-      const themes = await WrenchFlowAPI.getThemes();
-      const themeSel = document.getElementById('profile-theme');
-      themeSel.innerHTML = '<option value="">Default</option>' + themes.map(t => `<option value="${t.theme_id}" ${t.theme_id===currentThemeId?'selected':''}>${t.theme_name}</option>`).join('');
-      // Theme CSS loader
-      let themeLink = document.getElementById('wf-theme-css');
-      if (themeLink) themeLink.remove();
-      if (currentThemeId) {
-        const selectedTheme = themes.find(t => t.theme_id === currentThemeId);
-        if (selectedTheme && selectedTheme.config_json) {
-          const config = JSON.parse(selectedTheme.config_json);
-          if (config.css_url) {
-            themeLink = document.createElement('link');
-            themeLink.rel = 'stylesheet';
-            themeLink.id = 'wf-theme-css';
-            themeLink.href = config.css_url;
-            document.head.appendChild(themeLink);
-          }
-        }
-      }
-    }
-    // --- Theme Preview Logic ---
-    function applyTheme(themeId) {
-      const themeLink = document.getElementById('wf-theme-css');
-      if (themeLink) themeLink.remove();
-      if (!themeId) return;
-      WrenchFlowAPI.getThemes().then(themes => {
-        const selectedTheme = themes.find(t => t.theme_id === themeId);
-        if (selectedTheme && selectedTheme.config_json) {
-          const config = JSON.parse(selectedTheme.config_json);
-          if (config.css_url) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.id = 'wf-theme-css';
-            link.href = config.css_url;
-            document.head.appendChild(link);
-          }
-        }
-      });
-    }
-
-    document.getElementById('preview-theme-btn').onclick = function() {
-      const themeId = document.getElementById('profile-theme').value;
-      applyTheme(themeId);
-    };
-
-    // --- Dark Mode Logic ---
-    function setDarkMode(enabled) {
-      if (enabled) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('wf_dark_mode', '1');
-      } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.removeItem('wf_dark_mode');
-      }
-    }
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    darkModeToggle.checked = localStorage.getItem('wf_dark_mode') === '1';
-    setDarkMode(darkModeToggle.checked);
-    darkModeToggle.onchange = function() {
-      setDarkMode(this.checked);
-    };
-
-    loadProfile();
-    document.getElementById('profile-form').onsubmit = async function(e) {
-      e.preventDefault();
-      // Save to localStorage (simulate server update)
-      const user = JSON.parse(localStorage.getItem('wf_user') || '{"username":"demo"}');
-      user.email = document.getElementById('profile-email').value;
-      user.first_name = document.getElementById('profile-firstname').value;
-      user.last_name = document.getElementById('profile-lastname').value;
-      user.theme_id = document.getElementById('profile-theme').value;
-      localStorage.setItem('wf_user', JSON.stringify(user));
-      // Optionally: call WrenchFlowAPI.setUserTheme(user.id, user.theme_id)
-      alert('Profile saved! Theme will apply on next page load.');
-      location.reload();
-    };
-  </script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
