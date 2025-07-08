@@ -1,5 +1,5 @@
 // main.js - Central entry point for all WrenchFlow frontend logic
-import { renderTable, showMessage } from './ui-components.js';
+import * as WrenchflowUI from './ui-components.js';
 import { renderCalendar } from './calendar-view.js';
 import * as WrenchFlowAPI from './api-service.js';
 import { isOnline, queueSync } from './sync-manager.js';
@@ -147,24 +147,25 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
   let partsUsed = [];
   let services = [];
 
+
   async function loadDropdowns() {
     const data = await workOrdersAdvanced.getDropdownData(shop_id);
     equipmentList = data.equipment;
     employeeList = data.employees;
     partList = data.parts;
-    form.equipment_id.innerHTML = workOrdersAdvanced.buildEquipmentOptions(equipmentList);
-    form.technician_id.innerHTML = workOrdersAdvanced.buildTechnicianOptions(employeeList);
-    document.getElementById('part_id').innerHTML = workOrdersAdvanced.buildPartOptions(partList);
+    form.equipment_id.innerHTML = WrenchflowUI.buildEquipmentOptions(equipmentList);
+    form.technician_id.innerHTML = WrenchflowUI.buildTechnicianOptions(employeeList);
+    document.getElementById('part_id').innerHTML = WrenchflowUI.buildPartOptions(partList);
   }
 
   function renderPartsTable() {
     const tbody = document.getElementById('parts-table').querySelector('tbody');
-    tbody.innerHTML = workOrdersAdvanced.renderPartsTableRows(partsUsed);
+    tbody.innerHTML = WrenchflowUI.renderPartsTableRows(partsUsed);
   }
 
   function renderServicesTable() {
     const tbody = document.getElementById('services-table').querySelector('tbody');
-    tbody.innerHTML = workOrdersAdvanced.renderServicesTableRows(services);
+    tbody.innerHTML = WrenchflowUI.renderServicesTableRows(services);
   }
 
   // Event delegation for remove part/service buttons
@@ -313,9 +314,6 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
       : (localStorage.getItem('DEBUG_APP') === 'true');
   }
 
-  window.WrenchFlowUI = window.WrenchFlowUI || {};
-  WrenchFlowUI.renderTable = window.WrenchFlowUI.renderTable || renderTable;
-  WrenchFlowUI.showMessage = window.WrenchFlowUI.showMessage || showMessage;
 
   loadWorkOrders();
 }

@@ -1,7 +1,4 @@
-
-// workorders-advanced.js (refactored to pure logic/data helpers only)
 import * as WrenchFlowAPI from './api-service.js';
-import * as WrenchflowUI from './ui-components.js';
 // Prepare work order data for create/update
 export function prepareWorkOrderData({ form, equipmentList, editingId, partsUsed, services, shop_id }) {
   return {
