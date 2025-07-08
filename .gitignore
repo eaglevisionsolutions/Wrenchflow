@@ -6,6 +6,7 @@
 .idea/ # IntelliJ/PHPStorm IDE settings
 *.log
 *.sql # Avoid committing database dumps
+*.txt
 
 # PHP specific ignores
 /vendor/ # Composer dependencies
