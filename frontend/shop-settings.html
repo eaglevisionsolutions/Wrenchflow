@@ -39,8 +39,16 @@
       <h1>Shop Settings</h1>
       <form id="shop-settings-form">
         <div class="mb-3">
-          <label for="shop_labour_rate" class="form-label">Shop Labour Rate ($/hr)</label>
-          <input type="number" step="0.01" class="form-control" id="shop_labour_rate" required>
+          <label for="retail_labour_rate" class="form-label">Retail Labour Rate ($/hr)</label>
+          <input type="number" step="0.01" class="form-control" id="retail_labour_rate" required>
+        </div>
+        <div class="mb-3">
+          <label for="internal_labour_rate" class="form-label">Internal Labour Rate ($/hr)</label>
+          <input type="number" step="0.01" class="form-control" id="internal_labour_rate" required>
+        </div>
+        <div class="mb-3">
+          <label for="warranty_labour_rate" class="form-label">Warranty Labour Rate ($/hr)</label>
+          <input type="number" step="0.01" class="form-control" id="warranty_labour_rate" required>
         </div>
         <button type="submit" class="btn btn-primary">Save Settings</button>
       </form>
@@ -48,5 +56,6 @@
     </div>
   </div>
   <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/shop-settings.js"></script>
 </body>
 </html>

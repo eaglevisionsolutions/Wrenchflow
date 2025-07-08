@@ -239,8 +239,11 @@ CREATE TABLE IF NOT EXISTS sale_line_items (
 );
 
 -- Shop Settings
+
 CREATE TABLE IF NOT EXISTS shop_settings (
     shop_id CHAR(36) PRIMARY KEY,
-    shop_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 75.00,
+    retail_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 75.00,
+    internal_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 60.00,
+    warranty_labour_rate DECIMAL(10,2) NOT NULL DEFAULT 50.00,
     FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
 );

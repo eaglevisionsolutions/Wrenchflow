@@ -18,9 +18,12 @@ class ShopSettingController extends BaseController {
     // POST /shop_settings
     public function createOrUpdate($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('REPLACE INTO shop_settings (shop_id, shop_labour_rate) VALUES (?, ?)');
+        $stmt = $this->db->prepare('REPLACE INTO shop_settings (shop_id, retail_labour_rate, internal_labour_rate, warranty_labour_rate) VALUES (?, ?, ?, ?)');
         $stmt->execute([
-            $data['shop_id'], $data['shop_labour_rate']
+            $data['shop_id'],
+            $data['retail_labour_rate'],
+            $data['internal_labour_rate'],
+            $data['warranty_labour_rate']
         ]);
         $this->jsonResponse(['success' => true, 'shop_id' => $data['shop_id']], 201);
     }
