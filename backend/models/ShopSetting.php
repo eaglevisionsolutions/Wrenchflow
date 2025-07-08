@@ -26,26 +26,36 @@ class ShopSetting {
 
     public function save() {
         $db = Database::getConnection();
-        // Upsert logic: update if exists, else insert
+        // Upsert logic: update if exists, else create
         $stmt = $db->prepare("SELECT shop_id FROM shop_settings WHERE shop_id=?");
         $stmt->execute([$this->shop_id]);
         if ($stmt->fetch()) {
-            $stmt = $db->prepare("UPDATE shop_settings SET retail_labour_rate=?, internal_labour_rate=?, warranty_labour_rate=? WHERE shop_id=?");
-            $stmt->execute([
-                $this->retail_labour_rate,
-                $this->internal_labour_rate,
-                $this->warranty_labour_rate,
-                $this->shop_id
-            ]);
+            $this->update();
         } else {
-            $stmt = $db->prepare("INSERT INTO shop_settings (shop_id, retail_labour_rate, internal_labour_rate, warranty_labour_rate) VALUES (?, ?, ?, ?)");
-            $stmt->execute([
-                $this->shop_id,
-                $this->retail_labour_rate,
-                $this->internal_labour_rate,
-                $this->warranty_labour_rate
-            ]);
+            $this->create();
         }
+    }
+
+    public function create() {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("INSERT INTO shop_settings (shop_id, retail_labour_rate, internal_labour_rate, warranty_labour_rate) VALUES (?, ?, ?, ?)");
+        $stmt->execute([
+            $this->shop_id,
+            $this->retail_labour_rate,
+            $this->internal_labour_rate,
+            $this->warranty_labour_rate
+        ]);
+    }
+
+    public function update() {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("UPDATE shop_settings SET retail_labour_rate=?, internal_labour_rate=?, warranty_labour_rate=? WHERE shop_id=?");
+        $stmt->execute([
+            $this->retail_labour_rate,
+            $this->internal_labour_rate,
+            $this->warranty_labour_rate,
+            $this->shop_id
+        ]);
     }
 
     public static function find($shop_id) {
