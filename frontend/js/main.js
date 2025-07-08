@@ -132,10 +132,10 @@ if (page === 'login.html') {
   }
 }
 
-if (page === 'workorders-advanced.html') {
-  // ...existing workorders-advanced.js logic...
-  const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-  const shop_id = user.shop_id;
+
+// --- Work Orders Pages Logic (modular, using workorders-advanced.js helpers) ---
+if (page === 'workorders.html' || page === 'workorders-advanced.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('workorder-table');
   const form = document.getElementById('workorder-form');
   const addBtn = document.getElementById('add-workorder-btn');
@@ -148,36 +148,42 @@ if (page === 'workorders-advanced.html') {
   let services = [];
 
   async function loadDropdowns() {
-    equipmentList = await WrenchFlowAPI.getEquipment(shop_id);
-    employeeList = await WrenchFlowAPI.getEmployees(shop_id);
-    partList = await WrenchFlowAPI.getParts(shop_id);
-    form.equipment_id.innerHTML = '<option value="">Select Equipment</option>' + equipmentList.map(e => `<option value="${e.equipment_id}">${e.unit_type} - ${e.make} (${e.serial_number})</option>`).join('');
-    form.technician_id.innerHTML = '<option value="">Select Technician</option>' + employeeList.filter(e => e.role === 'technician').map(e => `<option value="${e.shop_user_id}">${e.first_name} ${e.last_name}</option>`).join('');
-    document.getElementById('part_id').innerHTML = '<option value="">Select Part</option>' + partList.map(p => `<option value="${p.part_id}">${p.part_name} (${p.part_number})</option>`).join('');
+    const data = await workOrdersAdvanced.getDropdownData(shop_id);
+    equipmentList = data.equipment;
+    employeeList = data.employees;
+    partList = data.parts;
+    form.equipment_id.innerHTML = workOrdersAdvanced.buildEquipmentOptions(equipmentList);
+    form.technician_id.innerHTML = workOrdersAdvanced.buildTechnicianOptions(employeeList);
+    document.getElementById('part_id').innerHTML = workOrdersAdvanced.buildPartOptions(partList);
   }
 
   function renderPartsTable() {
     const tbody = document.getElementById('parts-table').querySelector('tbody');
-    tbody.innerHTML = '';
-    partsUsed.forEach((p, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${p.name}</td><td>${p.qty}</td><td><button class='btn btn-sm btn-danger' onclick='removePart(${i})'>Remove</button></td>`;
-      tbody.appendChild(tr);
-    });
+    tbody.innerHTML = workOrdersAdvanced.renderPartsTableRows(partsUsed);
   }
 
   function renderServicesTable() {
     const tbody = document.getElementById('services-table').querySelector('tbody');
-    tbody.innerHTML = '';
-    services.forEach((s, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${s.desc}</td><td>${s.hours}</td><td><button class='btn btn-sm btn-danger' onclick='removeService(${i})'>Remove</button></td>`;
-      tbody.appendChild(tr);
-    });
+    tbody.innerHTML = workOrdersAdvanced.renderServicesTableRows(services);
   }
 
-  window.removePart = i => { partsUsed.splice(i, 1); renderPartsTable(); };
-  window.removeService = i => { services.splice(i, 1); renderServicesTable(); };
+  // Event delegation for remove part/service buttons
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.dataset && e.target.dataset.action === 'remove-part') {
+      const idx = parseInt(e.target.dataset.index);
+      if (!isNaN(idx)) {
+        partsUsed.splice(idx, 1);
+        renderPartsTable();
+      }
+    }
+    if (e.target && e.target.dataset && e.target.dataset.action === 'remove-service') {
+      const idx = parseInt(e.target.dataset.index);
+      if (!isNaN(idx)) {
+        services.splice(idx, 1);
+        renderServicesTable();
+      }
+    }
+  });
 
   document.getElementById('add-part-btn').onclick = () => {
     const partId = form.part_id.value;
@@ -201,7 +207,7 @@ if (page === 'workorders-advanced.html') {
   };
 
   function loadWorkOrders() {
-    WrenchFlowAPI.getWorkOrders(shop_id)
+    workOrdersAdvanced.getWorkOrders(shop_id)
       .then(data => {
         renderTable(tableDiv, data, [
           { key: 'date_created', label: 'Date' },
@@ -241,7 +247,7 @@ if (page === 'workorders-advanced.html') {
 
   function deleteWorkOrder(id) {
     if (!confirm('Delete this work order?')) return;
-    WrenchFlowAPI.deleteWorkOrder(id, shop_id)
+    workOrdersAdvanced.deleteWorkOrder(id, shop_id)
       .then(() => {
         showMessage('Work order deleted!', 'success');
         loadWorkOrders();
@@ -268,21 +274,15 @@ if (page === 'workorders-advanced.html') {
 
   form.onsubmit = async e => {
     e.preventDefault();
-    const data = {
-      ...(editingId ? { work_order_id: editingId } : {}), // Only send work_order_id if editing
-      shop_id,
-      equipment_id: form.equipment_id.value,
-      customer_id: equipmentList.find(eq => eq.equipment_id === form.equipment_id.value)?.customer_id,
-      date_created: form.date_created.value,
-      status: form.status.value,
-      reported_problem: form.reported_problem.value,
-      diagnosis: form.diagnosis.value,
-      repair_notes: form.repair_notes.value,
-      technician_id: form.technician_id.value,
-      parts: partsUsed,
-      services: services
-    };
-    const action = editingId ? WrenchFlowAPI.updateWorkOrder : WrenchFlowAPI.createWorkOrder;
+    const data = workOrdersAdvanced.prepareWorkOrderData({
+      form,
+      equipmentList,
+      editingId,
+      partsUsed,
+      services,
+      shop_id
+    });
+    const action = editingId ? workOrdersAdvanced.updateWorkOrder : workOrdersAdvanced.createWorkOrder;
     if (!isOnline()) {
       queueSync('work_orders', editingId ? 'PUT' : 'POST', data);
       showMessage('Saved offline. Will sync when online.', 'info');
