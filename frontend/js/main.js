@@ -233,7 +233,7 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
           btn.onclick = () => deleteWorkOrder(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editWorkOrder(id, data) {
