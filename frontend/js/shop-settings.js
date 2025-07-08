@@ -6,6 +6,8 @@ const form = document.getElementById('shop-settings-form');
 const msgDiv = document.getElementById('settings-message');
 const shopId = JSON.parse(localStorage.getItem('wf_user') || '{}').shop_id;
 
+let settingsExist = false;
+
 async function loadSettings() {
   if (!shopId) return;
   try {
@@ -13,9 +15,12 @@ async function loadSettings() {
     // getShopSettings returns an array (from getAll), use first if exists
     const data = Array.isArray(settingsArr) ? settingsArr[0] : settingsArr;
     if (data) {
+      settingsExist = true;
       document.getElementById('retail_labour_rate').value = data.retail_labour_rate || '';
       document.getElementById('internal_labour_rate').value = data.internal_labour_rate || '';
       document.getElementById('warranty_labour_rate').value = data.warranty_labour_rate || '';
+    } else {
+      settingsExist = false;
     }
   } catch (e) {
     WrenchflowUI.showMessage(e.message, 'danger');
@@ -32,8 +37,14 @@ form.onsubmit = async function(e) {
     warranty_labour_rate: parseFloat(document.getElementById('warranty_labour_rate').value)
   };
   try {
-    await WrenchFlowAPI.updateShopSettings(payload);
-    WrenchflowUI.showMessage('Settings saved!', 'success');
+    if (settingsExist) {
+      await WrenchFlowAPI.updateShopSettings(payload);
+      WrenchflowUI.showMessage('Settings updated!', 'success');
+    } else {
+      await WrenchFlowAPI.createShopSettings(payload);
+      WrenchflowUI.showMessage('Settings saved!', 'success');
+      settingsExist = true;
+    }
   } catch (e) {
     WrenchflowUI.showMessage(e.message, 'danger');
   }
