@@ -23,8 +23,9 @@ class AuthController {
         }
         // Remove sensitive info
         $user->password_hash = null;
-        Auth::login($user);
-        echo json_encode($user);
+        $userArr = $user->toArray();
+        Auth::login($userArr);
+        echo json_encode($userArr);
     }
     // POST /api/auth/logout
     public function logout() {
