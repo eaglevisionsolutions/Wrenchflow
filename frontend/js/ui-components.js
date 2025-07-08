@@ -1,15 +1,5 @@
 // --- Work Order UI Rendering Helpers ---
 
-// Fetch dropdown data for equipment, employees, and parts
-export async function getDropdownData(shop_id) {
-  const [equipment, employees, parts] = await Promise.all([
-    WrenchFlowAPI.getEquipment(shop_id),
-    WrenchFlowAPI.getEmployees(shop_id),
-    WrenchFlowAPI.getParts(shop_id)
-  ]);
-  return { equipment, employees, parts };
-}
-
 export function buildEquipmentOptions(equipmentList) {
   return '<option value="">Select Equipment</option>' +
     equipmentList.map(e => `<option value="${e.equipment_id}">${e.unit_type} - ${e.make} (${e.serial_number})</option>`).join('');

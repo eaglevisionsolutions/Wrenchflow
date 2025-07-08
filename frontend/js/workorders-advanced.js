@@ -16,7 +16,15 @@ export function prepareWorkOrderData({ form, equipmentList, editingId, partsUsed
     services: services
   };
 }
-
+// Fetch dropdown data for equipment, employees, and parts
+export async function getDropdownData(shop_id) {
+  const [equipment, employees, parts] = await Promise.all([
+    WrenchFlowAPI.getEquipment(shop_id),
+    WrenchFlowAPI.getEmployees(shop_id),
+    WrenchFlowAPI.getParts(shop_id)
+  ]);
+  return { equipment, employees, parts };
+}
 // API helpers for work orders
 export function getWorkOrders(shop_id) {
   return WrenchFlowAPI.getWorkOrders(shop_id);
