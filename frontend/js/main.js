@@ -339,6 +339,7 @@ if (page === 'appointments-calendar.html') {
 }
 // --- Appointments Page Logic ---
 if (page === 'appointments.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('appointment-table');
   const form = document.getElementById('appointment-form');
   const addBtn = document.getElementById('add-appointment-btn');
@@ -347,7 +348,7 @@ if (page === 'appointments.html') {
   let appointmentList = [];
 
   function loadAppointments() {
-    WrenchFlowAPI.getAppointments()
+    WrenchFlowAPI.getAppointments(shop_id)
       .then(data => {
         appointmentList = data;
         renderTable(tableDiv, data, [
@@ -383,7 +384,7 @@ if (page === 'appointments.html') {
 
   function deleteAppointment(id) {
     if (!confirm('Delete this appointment?')) return;
-    WrenchFlowAPI.deleteAppointment(id)
+    WrenchFlowAPI.deleteAppointment(id, shop_id)
       .then(() => {
         showMessage('Appointment deleted!', 'success');
         loadAppointments();
