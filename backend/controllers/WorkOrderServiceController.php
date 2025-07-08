@@ -6,7 +6,7 @@ require_once __DIR__ . '/BaseController.php';
 class WorkOrderServiceController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /work_order_services?work_order_id=...
     public function getAll($work_order_id) {

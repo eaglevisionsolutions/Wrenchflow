@@ -6,7 +6,7 @@ require_once __DIR__ . '/BaseController.php';
 class ShopController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /shops
     public function getAll() {

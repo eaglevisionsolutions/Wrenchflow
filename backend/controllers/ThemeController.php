@@ -6,7 +6,7 @@ require_once __DIR__ . '/BaseController.php';
 class ThemeController extends BaseController {
     private $db;
     public function __construct() {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getConnection();
     }
     // GET /themes
     public function getAll() {
