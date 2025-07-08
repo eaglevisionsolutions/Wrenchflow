@@ -256,10 +256,10 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
     if (!confirm('Delete this work order?')) return;
     workOrdersAdvanced.deleteWorkOrder(id, shop_id)
       .then(() => {
-        showMessage('Work order deleted!', 'success');
+        WrenchflowUI.showMessage('Work order deleted!', 'success');
         loadWorkOrders();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = async () => {
@@ -292,7 +292,7 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
     const action = editingId ? workOrdersAdvanced.updateWorkOrder : workOrdersAdvanced.createWorkOrder;
     if (!isOnline()) {
       queueSync('work_orders', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadWorkOrders();
@@ -300,12 +300,12 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Work order updated!' : 'Work order added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Work order updated!' : 'Work order added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadWorkOrders();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
 
   // --- Work Orders Page DEBUG_APP Logic ---
@@ -383,7 +383,7 @@ if (page === 'appointments.html') {
           btn.onclick = () => deleteAppointment(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editAppointment(id) {
@@ -402,10 +402,10 @@ if (page === 'appointments.html') {
     if (!confirm('Delete this appointment?')) return;
     WrenchFlowAPI.deleteAppointment(id, shop_id)
       .then(() => {
-        showMessage('Appointment deleted!', 'success');
+        WrenchflowUI.showMessage('Appointment deleted!', 'success');
         loadAppointments();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = () => {
@@ -430,7 +430,7 @@ if (page === 'appointments.html') {
     const action = editingId ? WrenchFlowAPI.updateAppointment : WrenchFlowAPI.createAppointment;
     if (!isOnline()) {
       queueSync('appointments', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadAppointments();
@@ -438,12 +438,12 @@ if (page === 'appointments.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Appointment updated!' : 'Appointment added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Appointment updated!' : 'Appointment added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadAppointments();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
   loadAppointments();
 }
@@ -479,7 +479,7 @@ if (page === 'customers.html') {
           btn.onclick = () => deleteCustomer(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editCustomer(id) {
@@ -499,10 +499,10 @@ if (page === 'customers.html') {
     if (!confirm('Delete this customer?')) return;
     WrenchFlowAPI.deleteCustomer(id, shop_id)
       .then(() => {
-        showMessage('Customer deleted!', 'success');
+        WrenchflowUI.showMessage('Customer deleted!', 'success');
         loadCustomers();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = () => {
@@ -528,7 +528,7 @@ if (page === 'customers.html') {
     const action = editingId ? WrenchFlowAPI.updateCustomer : WrenchFlowAPI.createCustomer;
     if (!isOnline()) {
       queueSync('customers', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadCustomers();
@@ -536,12 +536,12 @@ if (page === 'customers.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Customer updated!' : 'Customer added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Customer updated!' : 'Customer added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadCustomers();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
   loadCustomers();
 }
@@ -572,7 +572,7 @@ if (page === 'dashboard.html') {
       document.getElementById('vendor-count').textContent = vendors.length;
     }).catch(err => {
       console.error('[Dashboard] API error:', err);
-      showMessage('Failed to load dashboard data: ' + (err.message || err), 'danger');
+      WrenchflowUI.showMessage('Failed to load dashboard data: ' + (err.message || err), 'danger');
     });
   }
 }
@@ -608,7 +608,7 @@ if (page === 'employees.html') {
           btn.onclick = () => deleteEmployee(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editEmployee(id) {
@@ -628,10 +628,10 @@ if (page === 'employees.html') {
     if (!confirm('Delete this employee?')) return;
     WrenchFlowAPI.deleteEmployee(id)
       .then(() => {
-        showMessage('Employee deleted!', 'success');
+        WrenchflowUI.showMessage('Employee deleted!', 'success');
         loadEmployees();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = () => {
@@ -657,7 +657,7 @@ if (page === 'employees.html') {
     const action = editingId ? WrenchFlowAPI.updateEmployee : WrenchFlowAPI.createEmployee;
     if (!isOnline()) {
       queueSync('employees', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadEmployees();
@@ -665,12 +665,12 @@ if (page === 'employees.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Employee updated!' : 'Employee added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Employee updated!' : 'Employee added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadEmployees();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
   loadEmployees();
 }
@@ -707,7 +707,7 @@ if (page === 'equipment.html') {
           btn.onclick = () => deleteEquipment(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editEquipment(id) {
@@ -728,10 +728,10 @@ if (page === 'equipment.html') {
     if (!confirm('Delete this equipment?')) return;
     WrenchFlowAPI.deleteEquipment(id)
       .then(() => {
-        showMessage('Equipment deleted!', 'success');
+        WrenchflowUI.showMessage('Equipment deleted!', 'success');
         loadEquipment();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = () => {
@@ -758,7 +758,7 @@ if (page === 'equipment.html') {
     const action = editingId ? WrenchFlowAPI.updateEquipment : WrenchFlowAPI.createEquipment;
     if (!isOnline()) {
       queueSync('equipment', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadEquipment();
@@ -766,12 +766,12 @@ if (page === 'equipment.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Equipment updated!' : 'Equipment added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Equipment updated!' : 'Equipment added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadEquipment();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
   loadEquipment();
 }
@@ -808,7 +808,7 @@ if (page === 'parts.html') {
           btn.onclick = () => deletePart(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editPart(id) {
@@ -829,10 +829,10 @@ if (page === 'parts.html') {
     if (!confirm('Delete this part?')) return;
     WrenchFlowAPI.deletePart(id)
       .then(() => {
-        showMessage('Part deleted!', 'success');
+        WrenchflowUI.showMessage('Part deleted!', 'success');
         loadParts();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = () => {
@@ -859,7 +859,7 @@ if (page === 'parts.html') {
     const action = editingId ? WrenchFlowAPI.updatePart : WrenchFlowAPI.createPart;
     if (!isOnline()) {
       queueSync('parts', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadParts();
@@ -867,12 +867,12 @@ if (page === 'parts.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Part updated!' : 'Part added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Part updated!' : 'Part added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadParts();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
   loadParts();
 }
@@ -893,7 +893,7 @@ if (page === 'sales.html') {
           { key: 'status', label: 'Status' }
         ]);
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
   loadSales();
 }
@@ -930,7 +930,7 @@ if (page === 'vendors.html') {
           btn.onclick = () => deleteVendor(btn.dataset.id);
         });
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   function editVendor(id) {
@@ -951,10 +951,10 @@ if (page === 'vendors.html') {
     if (!confirm('Delete this vendor?')) return;
     WrenchFlowAPI.deleteVendor(id)
       .then(() => {
-        showMessage('Vendor deleted!', 'success');
+        WrenchflowUI.showMessage('Vendor deleted!', 'success');
         loadVendors();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   }
 
   addBtn.onclick = () => {
@@ -981,7 +981,7 @@ if (page === 'vendors.html') {
     const action = editingId ? WrenchFlowAPI.updateVendor : WrenchFlowAPI.createVendor;
     if (!isOnline()) {
       queueSync('vendors', editingId ? 'PUT' : 'POST', data);
-      showMessage('Saved offline. Will sync when online.', 'info');
+      WrenchflowUI.showMessage('Saved offline. Will sync when online.', 'info');
       form.classList.add('d-none');
       addBtn.classList.remove('d-none');
       loadVendors();
@@ -989,12 +989,12 @@ if (page === 'vendors.html') {
     }
     action(data)
       .then(() => {
-        showMessage(editingId ? 'Vendor updated!' : 'Vendor added!', 'success');
+        WrenchflowUI.showMessage(editingId ? 'Vendor updated!' : 'Vendor added!', 'success');
         form.classList.add('d-none');
         addBtn.classList.remove('d-none');
         loadVendors();
       })
-      .catch(e => showMessage(e.message, 'danger'));
+      .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
   };
   loadVendors();
 }
@@ -1077,7 +1077,7 @@ if (page === 'index.html' || page === '') {
             { key: 'address', label: 'Address' }
           ]);
         })
-        .catch(e => showMessage(e.message, 'danger'));
+        .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
     }
     addBtn.onclick = () => {
       form.classList.remove('d-none');
@@ -1102,16 +1102,16 @@ if (page === 'index.html' || page === '') {
       };
       WrenchFlowAPI.createCustomer(data)
         .then(() => {
-          showMessage('Customer added!', 'success');
+          WrenchflowUI.showMessage('Customer added!', 'success');
           form.classList.add('d-none');
           addBtn.classList.remove('d-none');
           loadCustomers();
         })
-        .catch(e => showMessage(e.message, 'danger'));
+        .catch(e => WrenchflowUI.showMessage(e.message, 'danger'));
     };
     window.WrenchFlowUI = window.WrenchFlowUI || {};
     WrenchFlowUI.renderTable = window.WrenchFlowUI.renderTable || renderTable;
-    WrenchFlowUI.showMessage = window.WrenchFlowUI.showMessage || showMessage;
+    WrenchFlowUI.WrenchflowUI.showMessage = window.WrenchFlowUI.WrenchflowUI.showMessage || WrenchflowUI.showMessage;
     loadCustomers();
   }
 }
