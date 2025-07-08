@@ -519,22 +519,33 @@ if (page === 'customers.html') {
 
 // --- Dashboard Page Logic ---
 if (page === 'dashboard.html') {
-  // ...existing dashboard logic...
-  const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
-  if (user && user.theme_id) {
-    loadThemeCss(user.theme_id);
+  // --- Dashboard logic with shop_id/session checks and debug logging ---
+  const user = getCurrentUser();
+  const shopId = getCurrentShopId();
+  console.log('[Dashboard] user:', user);
+  console.log('[Dashboard] shopId:', shopId);
+  if (!user || !shopId) {
+    alert('Session expired or shop not found. Please log in again.');
+    window.location.href = 'login.html';
+  } else {
+    if (user.theme_id) {
+      loadThemeCss(user.theme_id);
+    }
+    Promise.all([
+      WrenchFlowAPI.getWorkOrders(shopId),
+      WrenchFlowAPI.getAppointments(shopId),
+      WrenchFlowAPI.getParts(shopId),
+      WrenchFlowAPI.getVendors(shopId)
+    ]).then(([workorders, appointments, parts, vendors]) => {
+      document.getElementById('workorder-count').textContent = workorders.length;
+      document.getElementById('appointment-count').textContent = appointments.length;
+      document.getElementById('lowstock-count').textContent = parts.filter(p => p.quantity_on_hand <= (p.low_stock_threshold || 5)).length;
+      document.getElementById('vendor-count').textContent = vendors.length;
+    }).catch(err => {
+      console.error('[Dashboard] API error:', err);
+      showMessage('Failed to load dashboard data: ' + (err.message || err), 'danger');
+    });
   }
-  Promise.all([
-    WrenchFlowAPI.getWorkOrders(),
-    WrenchFlowAPI.getAppointments(),
-    WrenchFlowAPI.getParts(),
-    WrenchFlowAPI.getVendors()
-  ]).then(([workorders, appointments, parts, vendors]) => {
-    document.getElementById('workorder-count').textContent = workorders.length;
-    document.getElementById('appointment-count').textContent = appointments.length;
-    document.getElementById('lowstock-count').textContent = parts.filter(p => p.quantity_on_hand <= (p.low_stock_threshold || 5)).length;
-    document.getElementById('vendor-count').textContent = vendors.length;
-  });
 }
 
 // --- Employees Page Logic ---
