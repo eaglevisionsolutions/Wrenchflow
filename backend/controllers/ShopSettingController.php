@@ -10,21 +10,19 @@ class ShopSettingController extends BaseController {
     }
     // GET /shop_settings?shop_id=...
     public function get($shop_id) {
-        $stmt = $this->db->prepare('SELECT * FROM shop_settings WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $setting = $stmt->fetch();
-        $this->jsonResponse($setting);
+        $setting = ShopSetting::find($shop_id);
+        if ($setting) {
+            $this->jsonResponse($setting->toArray());
+        } else {
+            $this->jsonResponse(null);
+        }
     }
     // POST /shop_settings
     public function createOrUpdate($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('REPLACE INTO shop_settings (shop_id, retail_labour_rate, internal_labour_rate, warranty_labour_rate) VALUES (?, ?, ?, ?)');
-        $stmt->execute([
-            $data['shop_id'],
-            $data['retail_labour_rate'],
-            $data['internal_labour_rate'],
-            $data['warranty_labour_rate']
-        ]);
-        $this->jsonResponse(['success' => true, 'shop_id' => $data['shop_id']], 201);
+        $setting = new ShopSetting();
+        $setting->fromArray($data);
+        $setting->save();
+        $this->jsonResponse(['success' => true, 'shop_id' => $setting->shop_id], 201);
     }
 }

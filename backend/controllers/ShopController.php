@@ -10,19 +10,18 @@ class ShopController extends BaseController {
     }
     // GET /shops
     public function getAll() {
-        $stmt = $this->db->query('SELECT * FROM shops');
-        $shops = $stmt->fetchAll();
-        $this->jsonResponse($shops);
+        $shops = Shop::all();
+        $result = array_map(function($s) { return $s->toArray(); }, $shops);
+        $this->jsonResponse($result);
     }
     // POST /shops
     public function create($data) {
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO shops (shop_name, subscription_status, billing_email) VALUES (?, ?, ?)');
-        $stmt->execute([
-            $data['shop_name'], $data['subscription_status'], $data['billing_email']
-        ]);
-        $shop_id = $this->db->lastInsertId();
-        $this->jsonResponse(['success' => true, 'shop_id' => $shop_id], 201);
+        $shop = new Shop();
+        $shop->fromArray($data);
+        $shop->save();
+        $this->jsonResponse(['success' => true, 'shop_id' => $shop->shop_id], 201);
     }
+    // You may want to add update, delete, getById methods here as in other controllers
     // ...add update, delete, getById methods...
 }

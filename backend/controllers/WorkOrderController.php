@@ -11,31 +11,26 @@ class WorkOrderController extends BaseController {
     // GET /work_orders?shop_id=...
     public function getAll($shop_id) {
         Auth::check();
-        $stmt = $this->db->prepare('SELECT * FROM work_orders WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $orders = $stmt->fetchAll();
-        $this->jsonResponse($orders);
+        $orders = WorkOrder::all($shop_id);
+        $result = array_map(function($o) { return $o->toArray(); }, $orders);
+        $this->jsonResponse($result);
     }
     // POST /work_orders
     public function create($data) {
         Auth::check();
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO work_orders (work_order_id, shop_id, equipment_id, customer_id, date_created, status, reported_problem, diagnosis, repair_notes, technician_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([
-            $data['work_order_id'], $data['shop_id'], $data['equipment_id'], $data['customer_id'], $data['date_created'],
-            $data['status'], $data['reported_problem'], $data['diagnosis'], $data['repair_notes'], $data['technician_id']
-        ]);
-        $this->jsonResponse(['success' => true, 'work_order_id' => $data['work_order_id']], 201);
+        $order = new WorkOrder();
+        $order->fromArray($data);
+        $order->save();
+        $this->jsonResponse(['success' => true, 'work_order_id' => $order->work_order_id], 201);
     }
     // GET /work_orders/{id}
     public function getById($id, $shop_id) {
         Auth::check();
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('SELECT * FROM work_orders WHERE work_order_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $order = $stmt->fetch();
-        if ($order) {
-            $this->jsonResponse($order);
+        $order = WorkOrder::find($id);
+        if ($order && $order->shop_id == $shop_id) {
+            $this->jsonResponse($order->toArray());
         } else {
             $this->errorResponse('Not found', 404);
         }
@@ -44,18 +39,25 @@ class WorkOrderController extends BaseController {
     public function update($data) {
         Auth::check();
         AccessControl::requireShopAccess($data['shop_id']);
-        $stmt = $this->db->prepare('UPDATE work_orders SET equipment_id=?, customer_id=?, date_created=?, status=?, reported_problem=?, diagnosis=?, repair_notes=?, technician_id=? WHERE work_order_id=? AND shop_id=?');
-        $stmt->execute([
-            $data['equipment_id'], $data['customer_id'], $data['date_created'], $data['status'], $data['reported_problem'], $data['diagnosis'], $data['repair_notes'], $data['technician_id'], $data['work_order_id'], $data['shop_id']
-        ]);
-        $this->jsonResponse(['success' => true]);
+        $order = WorkOrder::find($data['work_order_id']);
+        if ($order && $order->shop_id == $data['shop_id']) {
+            $order->fromArray($data);
+            $order->save();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
     // DELETE /work_orders?id=...&shop_id=...
     public function delete($id, $shop_id) {
         Auth::check();
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('DELETE FROM work_orders WHERE work_order_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $this->jsonResponse(['success' => true]);
+        $order = WorkOrder::find($id);
+        if ($order && $order->shop_id == $shop_id) {
+            $order->delete();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
 }

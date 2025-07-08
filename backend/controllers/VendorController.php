@@ -11,32 +11,26 @@ class VendorController extends BaseController {
     // GET /vendors?shop_id=...
     public function getAll($shop_id) {
         Auth::check();
-        $stmt = $this->db->prepare('SELECT * FROM vendors WHERE shop_id = ?');
-        $stmt->execute([$shop_id]);
-        $vendors = $stmt->fetchAll();
-        $this->jsonResponse($vendors);
+        $vendors = Vendor::all($shop_id);
+        $result = array_map(function($v) { return $v->toArray(); }, $vendors);
+        $this->jsonResponse($result);
     }
     // POST /vendors
     public function create($data) {
         Auth::check();
         // ...validate $data...
-        $stmt = $this->db->prepare('INSERT INTO vendors (shop_id, vendor_name, contact_person, phone_number, email, address, notes) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([
-            $data['shop_id'], $data['vendor_name'], $data['contact_person'],
-            $data['phone_number'], $data['email'], $data['address'], $data['notes']
-        ]);
-        $vendor_id = $this->db->lastInsertId();
-        $this->jsonResponse(['success' => true, 'vendor_id' => $vendor_id], 201);
+        $vendor = new Vendor();
+        $vendor->fromArray($data);
+        $vendor->save();
+        $this->jsonResponse(['success' => true, 'vendor_id' => $vendor->vendor_id], 201);
     }
     // GET /vendors/{id}
     public function getById($id, $shop_id) {
         Auth::check();
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('SELECT * FROM vendors WHERE vendor_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $vendor = $stmt->fetch();
-        if ($vendor) {
-            $this->jsonResponse($vendor);
+        $vendor = Vendor::find($id);
+        if ($vendor && $vendor->shop_id == $shop_id) {
+            $this->jsonResponse($vendor->toArray());
         } else {
             $this->errorResponse('Not found', 404);
         }
@@ -45,18 +39,25 @@ class VendorController extends BaseController {
     public function update($data) {
         Auth::check();
         AccessControl::requireShopAccess($data['shop_id']);
-        $stmt = $this->db->prepare('UPDATE vendors SET vendor_name=?, contact_person=?, phone_number=?, email=?, address=?, notes=? WHERE vendor_id=? AND shop_id=?');
-        $stmt->execute([
-            $data['vendor_name'], $data['contact_person'], $data['phone_number'], $data['email'], $data['address'], $data['notes'], $data['vendor_id'], $data['shop_id']
-        ]);
-        $this->jsonResponse(['success' => true]);
+        $vendor = Vendor::find($data['vendor_id']);
+        if ($vendor && $vendor->shop_id == $data['shop_id']) {
+            $vendor->fromArray($data);
+            $vendor->save();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
     // DELETE /vendors?id=...&shop_id=...
     public function delete($id, $shop_id) {
         Auth::check();
         AccessControl::requireShopAccess($shop_id);
-        $stmt = $this->db->prepare('DELETE FROM vendors WHERE vendor_id = ? AND shop_id = ?');
-        $stmt->execute([$id, $shop_id]);
-        $this->jsonResponse(['success' => true]);
+        $vendor = Vendor::find($id);
+        if ($vendor && $vendor->shop_id == $shop_id) {
+            $vendor->delete();
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->errorResponse('Not found', 404);
+        }
     }
 }
