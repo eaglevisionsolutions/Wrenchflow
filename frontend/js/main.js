@@ -433,6 +433,7 @@ if (page === 'appointments.html') {
 
 // --- Customers Page Logic ---
 if (page === 'customers.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('customer-table');
   const form = document.getElementById('customer-form');
   const addBtn = document.getElementById('add-customer-btn');
@@ -441,7 +442,7 @@ if (page === 'customers.html') {
   let customerList = [];
 
   function loadCustomers() {
-    WrenchFlowAPI.getCustomers()
+    WrenchFlowAPI.getCustomers(shop_id)
       .then(data => {
         customerList = data;
         renderTable(tableDiv, data, [
@@ -479,7 +480,7 @@ if (page === 'customers.html') {
 
   function deleteCustomer(id) {
     if (!confirm('Delete this customer?')) return;
-    WrenchFlowAPI.deleteCustomer(id)
+    WrenchFlowAPI.deleteCustomer(id, shop_id)
       .then(() => {
         showMessage('Customer deleted!', 'success');
         loadCustomers();
