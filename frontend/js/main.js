@@ -1,10 +1,18 @@
 // main.js - Central entry point for all WrenchFlow frontend logic
 
-
 import { renderTable, showMessage } from './ui-components.js';
 import { renderCalendar } from './calendar-view.js';
 import * as WrenchFlowAPI from './api-service.js';
 import { isOnline, queueSync } from './sync-manager.js';
+
+// --- User/Shop Session Helpers ---
+function getCurrentUser() {
+  return JSON.parse(localStorage.getItem('wf_user') || 'null');
+}
+function getCurrentShopId() {
+  const user = getCurrentUser();
+  return user && user.shop_id ? user.shop_id : '';
+}
 
 // --- Theme CSS Loader (Reusable) ---
 /**
@@ -998,7 +1006,7 @@ if (page === 'profile.html') {
 // --- Index Page Logic ---
 if (page === 'index.html' || page === '') {
   // Redirect to dashboard if logged in, else to login page
-  const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
+  const user = getCurrentUser();
   if (user && user.shop_id) {
     window.location.href = 'dashboard.html';
   } else {
@@ -1007,7 +1015,7 @@ if (page === 'index.html' || page === '') {
       loadThemeCss(user.theme_id);
     }
     // Customer CRUD logic
-    const shop_id = '11111111-1111-1111-1111-111111111111'; // Example, replace with actual session/shop
+    const shop_id = getCurrentShopId();
     const tableDiv = document.getElementById('customer-table');
     const form = document.getElementById('customer-form');
     const addBtn = document.getElementById('add-customer-btn');
@@ -1066,11 +1074,11 @@ if (page === 'index.html' || page === '') {
 // --- Work Orders Calendar Page Logic ---
 if (page === 'workorders-calendar.html') {
   // --- Auth check: redirect to login if not logged in ---
-  const user = JSON.parse(localStorage.getItem('wf_user') || 'null');
+  const user = getCurrentUser();
   if (!user || !user.shop_id) {
     window.location.href = 'login.html';
   } else {
-    const shop_id = '11111111-1111-1111-1111-111111111111'; // Example, replace with actual session/shop
+    const shop_id = getCurrentShopId();
     const calendarDiv = document.getElementById('calendar');
     const detailsDiv = document.getElementById('details');
     function loadCalendar() {
