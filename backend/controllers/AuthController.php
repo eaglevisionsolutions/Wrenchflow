@@ -16,13 +16,13 @@ class AuthController {
         $email = $data['email'];
         $password = $data['password'];
         $user = Employee::findByEmail($email);
-        if (!$user || !password_verify($password, $user['password_hash'])) {
+        if (!$user || !password_verify($password, $user->password_hash)) {
             http_response_code(401);
             echo json_encode(['error' => 'Invalid credentials']);
             return;
         }
         // Remove sensitive info
-        unset($user['password_hash']);
+        $user->password_hash = null;
         Auth::login($user);
         echo json_encode($user);
     }
