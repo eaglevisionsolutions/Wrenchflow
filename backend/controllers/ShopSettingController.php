@@ -1,3 +1,9 @@
+    // GET /shop_settings?shop_id=...
+    public function getAll($shop_id) {
+        $settings = ShopSetting::all($shop_id);
+        $result = array_map(function($s) { return $s->toArray(); }, $settings);
+        $this->jsonResponse($result);
+    }
 <?php
 require_once __DIR__ . '/../Database.php';
 require_once __DIR__ . '/../models/ShopSetting.php';
