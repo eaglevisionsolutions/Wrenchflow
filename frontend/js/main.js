@@ -3,6 +3,7 @@ import { renderTable, showMessage } from './ui-components.js';
 import { renderCalendar } from './calendar-view.js';
 import * as WrenchFlowAPI from './api-service.js';
 import { isOnline, queueSync } from './sync-manager.js';
+import * as workOrdersAdvanced from './workorders-advanced.js';
 
 // --- Global Logout Button Handler ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -211,7 +212,7 @@ if (page === 'workorders-advanced.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.work_order_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.work_order_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editWorkOrder(btn.dataset.id, data);
         });
@@ -370,7 +371,7 @@ if (page === 'appointments.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.appointment_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.appointment_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editAppointment(btn.dataset.id);
         });
@@ -466,7 +467,7 @@ if (page === 'customers.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.customer_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.customer_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editCustomer(btn.dataset.id);
         });
@@ -595,7 +596,7 @@ if (page === 'employees.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.shop_user_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.shop_user_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editEmployee(btn.dataset.id);
         });
@@ -694,7 +695,7 @@ if (page === 'equipment.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.equipment_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.equipment_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editEquipment(btn.dataset.id);
         });
@@ -795,7 +796,7 @@ if (page === 'parts.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.part_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.part_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editPart(btn.dataset.id);
         });
@@ -917,7 +918,7 @@ if (page === 'vendors.html') {
           { key: 'actions', label: 'Actions', render: (row) => {
             return `<button class='btn btn-sm btn-warning edit-btn' data-id='${row.vendor_id}'>Edit</button> <button class='btn btn-sm btn-danger delete-btn' data-id='${row.vendor_id}'>Delete</button>`;
           }}
-        ]);
+        );
         tableDiv.querySelectorAll('.edit-btn').forEach(btn => {
           btn.onclick = () => editVendor(btn.dataset.id);
         });

@@ -202,4 +202,23 @@ window.WrenchFlowUI = window.WrenchFlowUI || {};
 WrenchFlowUI.renderTable = window.WrenchFlowUI.renderTable || renderTable;
 WrenchFlowUI.showMessage = window.WrenchFlowUI.showMessage || showMessage;
 
+// Export all relevant functions and variables for reuse in main.js
+export {
+  loadDropdowns,
+  renderPartsTable,
+  renderServicesTable,
+  loadWorkOrders,
+  editWorkOrder,
+  deleteWorkOrder,
+  addBtn,
+  cancelBtn,
+  form,
+  partsUsed,
+  services,
+  equipmentList,
+  employeeList,
+  partList,
+  shop_id
+};
+
 loadWorkOrders();
