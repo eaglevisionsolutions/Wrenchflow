@@ -14,6 +14,17 @@ function getCurrentShopId() {
   return user && user.shop_id ? user.shop_id : '';
 }
 
+// --- Require Shop ID Helper ---
+function requireShopId() {
+  const shop_id = getCurrentShopId();
+  if (!shop_id) {
+    alert('Session expired or shop not found. Please log in again.');
+    window.location.href = 'login.html';
+    throw new Error('No shop_id in session');
+  }
+  return shop_id;
+}
+
 // --- Theme CSS Loader (Reusable) ---
 /**
  * Loads and applies the theme CSS for a given themeId (string).
@@ -550,6 +561,7 @@ if (page === 'dashboard.html') {
 
 // --- Employees Page Logic ---
 if (page === 'employees.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('employee-table');
   const form = document.getElementById('employee-form');
   const addBtn = document.getElementById('add-employee-btn');
@@ -558,7 +570,7 @@ if (page === 'employees.html') {
   let employeeList = [];
 
   function loadEmployees() {
-    WrenchFlowAPI.getEmployees()
+    WrenchFlowAPI.getEmployees(shop_id)
       .then(data => {
         employeeList = data;
         renderTable(tableDiv, data, [
@@ -647,6 +659,7 @@ if (page === 'employees.html') {
 
 // --- Equipment Page Logic ---
 if (page === 'equipment.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('equipment-table');
   const form = document.getElementById('equipment-form');
   const addBtn = document.getElementById('add-equipment-btn');
@@ -655,7 +668,7 @@ if (page === 'equipment.html') {
   let equipmentList = [];
 
   function loadEquipment() {
-    WrenchFlowAPI.getEquipment()
+    WrenchFlowAPI.getEquipment(shop_id)
       .then(data => {
         equipmentList = data;
         renderTable(tableDiv, data, [
@@ -747,6 +760,7 @@ if (page === 'equipment.html') {
 
 // --- Parts Page Logic ---
 if (page === 'parts.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('parts-table');
   const form = document.getElementById('part-form');
   const addBtn = document.getElementById('add-part-btn');
@@ -755,7 +769,7 @@ if (page === 'parts.html') {
   let partList = [];
 
   function loadParts() {
-    WrenchFlowAPI.getParts()
+    WrenchFlowAPI.getParts(shop_id)
       .then(data => {
         partList = data;
         renderTable(tableDiv, data, [
@@ -867,6 +881,7 @@ if (page === 'sales.html') {
 
 // --- Vendors Page Logic ---
 if (page === 'vendors.html') {
+  const shop_id = requireShopId();
   const tableDiv = document.getElementById('vendor-table');
   const form = document.getElementById('vendor-form');
   const addBtn = document.getElementById('add-vendor-btn');
@@ -875,7 +890,7 @@ if (page === 'vendors.html') {
   let vendorList = [];
 
   function loadVendors() {
-    WrenchFlowAPI.getVendors()
+    WrenchFlowAPI.getVendors(shop_id)
       .then(data => {
         vendorList = data;
         renderTable(tableDiv, data, [
