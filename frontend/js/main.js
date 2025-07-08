@@ -186,26 +186,32 @@ if (page === 'workorders.html' || page === 'workorders-advanced.html') {
     }
   });
 
-  document.getElementById('add-part-btn').onclick = () => {
-    const partId = form.part_id.value;
-    const qty = parseFloat(form.part_qty.value);
-    if (!partId || !qty) return;
-    const part = partList.find(p => p.part_id === partId);
-    partsUsed.push({ id: partId, name: part.part_name, qty });
-    renderPartsTable();
-    form.part_id.value = '';
-    form.part_qty.value = '';
-  };
+  const addPartBtn = document.getElementById('add-part-btn');
+  if (addPartBtn) {
+    addPartBtn.onclick = () => {
+      const partId = form.part_id.value;
+      const qty = parseFloat(form.part_qty.value);
+      if (!partId || !qty) return;
+      const part = partList.find(p => p.part_id === partId);
+      partsUsed.push({ id: partId, name: part.part_name, qty });
+      renderPartsTable();
+      form.part_id.value = '';
+      form.part_qty.value = '';
+    };
+  }
 
-  document.getElementById('add-service-btn').onclick = () => {
-    const desc = form.service_desc.value;
-    const hours = parseFloat(form.service_hours.value);
-    if (!desc || !hours) return;
-    services.push({ desc, hours });
-    renderServicesTable();
-    form.service_desc.value = '';
-    form.service_hours.value = '';
-  };
+  const addServiceBtn = document.getElementById('add-service-btn');
+  if (addServiceBtn) {
+    addServiceBtn.onclick = () => {
+      const desc = form.service_desc.value;
+      const hours = parseFloat(form.service_hours.value);
+      if (!desc || !hours) return;
+      services.push({ desc, hours });
+      renderServicesTable();
+      form.service_desc.value = '';
+      form.service_hours.value = '';
+    };
+  }
 
   function loadWorkOrders() {
     workOrdersAdvanced.getWorkOrders(shop_id)
